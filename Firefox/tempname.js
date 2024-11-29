@@ -1,40 +1,56 @@
-let yt_homepage = new RegExp('youtube.com(/)?$');
-let yt_searchresult = new RegExp('youtube.[a-zA-Z]{1,4}\/results.*');
-let yt_watchpage = new RegExp('youtube.[a-zA-Z]{1,4}\/watch.*');
-let extension_prefix = "custom_"
-let lastUrl = location.href;
+let yt_start = new RegExp('youtube.com(\/)?$');
+let yt_start_lang = new RegExp('youtube.com(\/)?\?.*');
+let yt_result = new RegExp('youtube.[a-zA-Z]{1,4}\/results.*');
+let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}\/watch.*');
 
-let changed_elements = [];
+let extension_prefix = "custom_"
+let lastUrl = location.pathname;
+
 let global_state;
+
+let start_hide_array = ["page-manager", "guide-button", "items", "guide-content", "country-code"]
+let start_manip_array = ["logo", "logo-icon", "center", "end"]
+
+let result_hide_array = ["guide-button", "items", "guide-content", "country-code"]
+        
+
 
 
 
 //INITIALISIERUNG, WENN DIE SEITE DAS ERSTE MAL GELADEN WIRD
 document.addEventListener('DOMContentLoaded', () => {
-    if (yt_homepage.test(window.location.href)) {
+    console.log(window.location.href)
+    console.log(yt_start_lang.test(window.location.href))
+    if (yt_start.test(window.location.href)) {
         enter_start_state()
         global_state = 0
-    } else if (yt_searchresult.test(window.location.href)) {
+    } else if (yt_result.test(window.location.href)) {
+        enter_result_state()
         global_state = 1
-        //TODO für den fall, dass jemand einen link öffnet
-        //injectCSS("watchpage.css");
+    }else if(yt_watch){
+        enter_watch_state()
+        global_state = 2
     }
+    console.log(global_state)
 });
 
 
 //ANZEIGEN DER SEITE, WENN ALLES FERTIG GELADEN
 window.addEventListener('load', () => {
-    console.log("test?")
+    removeShorts()
+
     document.body.style.display = 'block';
 });
 
 //BEOBACHTER, OB SICH DIE SEITE ÄNDERT
 new MutationObserver(() => {
-    const currentUrl = location.href;
+    removeShorts()
+
+    const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
         lastUrl = currentUrl;
 
-        //WIRD GEBRAUCHT, DAMIT DIE CONTAINER CSS REGEL IN MAINPAGE.CSS FUNKTIONIERT
+        //WIRD GEBRAUCHT, DAMIT DIE CONTAINER CSS REGEL IN STARTPAGE.CSS FUNKTIONIERT
         let yt_search = document.getElementsByTagName("ytd-search")
         if(yt_search.length > 0){
             for (el of document.getElementsByTagName("ytd-search")) {
@@ -42,10 +58,7 @@ new MutationObserver(() => {
             }
         }
 
-        if(document.getElementById("custom_css_sheet")){
-            //document.getElementById("custom_css_sheet").remove()
-        }
-
+        //LEAVE CURRENT STATE
         switch (global_state) {
             case 0:
                 leave_start_state()
@@ -56,18 +69,24 @@ new MutationObserver(() => {
             case 2:
                 leave_watch_state()
                 break;
+            default:
+                leave_start_state()
+                leave_result_state()
+                leave_watch_state()
         }
 
-        if (yt_homepage.test(window.location.href)) {
-            //FALL: ES WIRD ZUR HAUPTSEITE GEWECHSELT
-            console.log("//FALL: ES WIRD ZUR HAUPTSEITE GEWECHSELT")
-            injectCSS("mainpage.css");
-        } else if (yt_searchresult.test(window.location.href)) {
-            //FALL: ES WIRD ZUR SEARCHRESULT SEITE GEWECHSELT
-            console.log("//FALL: ES WIRD ZUR SEARCHRESULT SEITE GEWECHSELT")
-            document.getElementById("page-manager").classList.remove("custom_dnone")
-            //injectCSS("watchpage.css");
-            document.getElementById("custom_css_sheet").href = browser.runtime.getURL("watchpage.css");
+        //ENTER NEW STATE
+        if (yt_start.test(window.location.href)) {
+            enter_start_state()
+            global_state = 0
+        } else if (yt_result.test(window.location.href)) {
+            enter_result_state()
+            global_state = 1
+        }else if(yt_watch.test(window.location.href)){
+            enter_watch_state()
+            global_state = 2
+        }else{
+            global_state = -1
         }
     }
 }).observe(document, { subtree: true, childList: true });
@@ -75,33 +94,41 @@ new MutationObserver(() => {
 
 
 function enter_start_state(){
-    injectCSS("mainpage.css");
+    injectCSS("startpage.css");
 
     //HIDE SECTION
-    let hide_array = ["page-manager", "guide-button", "items", "guide-content", "country-code"]
-    toggleElements(hide_array, "hide")
+    toggleElements(start_hide_array, "hide")
     document.getElementsByTagName("ytd-mini-guide-renderer")[0].classList.add(extension_prefix + "dnone")
     
     //MANIPULATE SECTION
-    let manip_array = ["logo", "logo-icon", "center", "end"]
-    manipulateElements(manip_array, "add")
+    manipulateElements(start_manip_array, "add")
 }
 
 function leave_start_state(){
+    removeCSS()
+
     //HIDE SECTION
-    let hide_array = ["page-manager", "guide-button", "items", "guide-content", "country-code"]
-    toggleElements(hide_array, "show")
-    document.getElementsByTagName("ytd-mini-guide-renderer")[0].classList.add(extension_prefix + "dnone")
+    toggleElements(start_hide_array, "show")
+    document.getElementsByTagName("ytd-mini-guide-renderer")[0].classList.remove(extension_prefix + "dnone")
     
     //MANIPULATE SECTION
-    let manip_array = ["logo", "logo-icon", "center", "end"]
-    manipulateElements(manip_array, "remove")
-
+    manipulateElements(start_manip_array, "remove")
 }
 
-function enter_result_state(){}
+function enter_result_state(){
+    injectCSS("resultpage.css");
+    console.log("hier aber weinigsdstene?")
 
-function leave_result_state(){}
+    //HIDE SECTION
+    toggleElements(result_hide_array, "hide")
+}
+
+function leave_result_state(){
+    removeCSS()
+
+    //HIDE SECTION
+    toggleElements(result_hide_array, "show")
+}
 
 function enter_watch_state(){}
 
@@ -129,7 +156,22 @@ function leave_global_state(){
 
 
 
+function removeShorts(){
+    let shortsDOMObj = document.getElementsByTagName("ytd-reel-shelf-renderer")
+    if(shortsDOMObj.length > 0){
+        for(let short of shortsDOMObj){
+            short.remove()
+        }
+    }
 
+    let test = document.getElementsByTagName("ytd-ad-slot-renderer")
+    if(test.length > 0){
+        for(let short of test){
+            short.remove()
+        }
+    }
+    
+}
 
 
 
@@ -187,16 +229,25 @@ function injectCSS(fileName) {
     document.head.appendChild(link);
 }
 
+function removeCSS(){
+    let cssFile = document.getElementById("custom_css_sheet")
+    if(cssFile){
+        cssFile.remove()
+    }
+}
+
 
 function toggleElements(arr, state){
+    console.log(arr)
     switch (state) {
         case "hide":
             for(let el of arr){
                 var dom_el = document.getElementById(el)
-        
+                console.log(dom_el)
                 if(dom_el){
                     dom_el.classList.add(extension_prefix + "dnone")
                 }
+                console.log(dom_el)
             }
             break;
         case "show":
