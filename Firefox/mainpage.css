@@ -1,0 +1,30 @@
+.custom_logo{
+    width: auto !important;
+}
+
+.custom_logo-icon{
+    width: 350px !important;
+    height: 165px !important; 
+    padding-bottom: 0 !important;
+}
+
+.custom_center{
+    width: 700px !important;
+}
+
+.custom_end{
+    position: absolute !important;
+    margin-top: -18vh !important;
+    align-self: end !important;
+}
+
+.custom_dnone{
+    display: none !important;
+}
+
+#container:has(#start){
+    flex-direction: column !important;
+    padding-top: 20vh !important;
+}
+
+
