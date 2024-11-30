@@ -13,6 +13,7 @@ let start_manip_array = ["logo", "logo-icon", "center", "end"]
 
 let result_hide_array = ["guide-button", "items", "guide-content", "items", "country-code"]
         
+let watch_hide_array = ["guide-button", "items", "guide-content", "items", "country-code", "sections"]
 
 
 
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (yt_result.test(window.location.href)) {
         enter_result_state()
         global_state = 1
-    }else if(yt_watch){
+    }else if(yt_watch.test(window.location.href)){
         enter_watch_state()
         global_state = 2
     }else{
@@ -41,6 +42,9 @@ window.addEventListener('load', () => {
 //BEOBACHTER, OB SICH DIE SEITE ÄNDERT
 new MutationObserver(() => {
     removeBloat()
+    
+    let ytRecommObj = document.getElementById("page-manager").querySelector("#columns").querySelector("#secondary").offsetWidth
+    checkforTheaterMode(ytRecommObj)
 
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
@@ -108,7 +112,6 @@ function leave_start_state(){
 
 function enter_result_state(){
     injectCSS("resultpage.css");
-    console.log("hier aber weinigsdstene?")
 
     //HIDE SECTION
     toggleElements(result_hide_array, "hide")
@@ -121,9 +124,37 @@ function leave_result_state(){
     toggleElements(result_hide_array, "show")
 }
 
-function enter_watch_state(){}
+function enter_watch_state(){ 
+    injectCSS("watchpage.css");
 
-function leave_watch_state(){}
+    //HIDE SECTION
+    toggleElements(watch_hide_array, "hide")
+    //HIDE RECOMMENDED SIDEBAR & COMMENTS
+    //WAIT FOR THE PAGE-MANAGER TO LOAD THEN REMOVE UNWANTED ITEMS
+    waitForElement("#page-manager", document.getElementById("page-manager"))
+        .then((asyncObj) => {
+            return waitForElement("#columns", asyncObj);
+        })
+        .then((asyncObj) => {
+            //REMOVE COMMENTS
+            asyncObj.querySelector("ytd-comments").classList.add(extension_prefix + "dnone") 
+
+            //REMOVE RECOMMENDED VIDEOS
+            let ytRecomm = asyncObj.querySelector("#secondary")
+            ytRecomm.innerHTML = ""            
+            checkforTheaterMode(ytRecomm.offsetWidth)
+            document.body.style.overflowX = 'hidden';
+        })
+    }
+
+function leave_watch_state(){
+    removeCSS();
+
+    //HIDE SECTION
+    toggleElements(watch_hide_array, "show")
+    document.getElementById("page-manager").querySelector("ytd-comments").classList.remove(extension_prefix + "dnone") 
+    document.getElementById("page-manager").querySelector("#secondary").classList.remove(extension_prefix + "dnone")
+}
 
 function leave_global_state(){
     switch (global_state) {
@@ -141,6 +172,27 @@ function leave_global_state(){
             break;
     }
 }
+
+function waitForElement(selector, observeElement = document.body, { childList = true, subtree = true } = {}) {
+    return new Promise(resolve => {
+      let element = document.querySelector(selector);
+      if (element) {
+        return resolve(element);
+      }
+      const elementObserver = new MutationObserver(() => {
+        element = document.querySelector(selector);
+        if (element) {
+          resolve(element);
+          elementObserver.disconnect();
+        }
+      });
+      elementObserver.observe(observeElement, { childList: childList, subtree: subtree });
+    });
+  }
+
+
+
+
 
 
 
@@ -170,9 +222,40 @@ function removeBloat(){
 
 
 
+//CHECK IF THEADERMODE IS ON, IF ON THEN DONT ADD CENTERING MARGINS
+function checkforTheaterMode(ytRecommObj){
+    var pageManager = document.getElementById("page-manager");
+    var belowVideo = document.getElementById("page-manager").querySelector("#below")  
+    if(!getCookieValue("wide")){
+        pageManager.style.marginLeft = ytRecommObj / 2 + "px"
+        pageManager.style.marginRight = "-" + ytRecommObj / 2 + "px"
+        belowVideo.style.marginLeft = "0px"
+        belowVideo.style.marginRight = "0px"
+        document.body.style.overflowX = 'hidden';
+    }else{
+        pageManager.style.marginLeft = "0px"
+        pageManager.style.marginRight = "0px"
+        belowVideo.style.marginLeft = ytRecommObj / 2 + "px"
+        belowVideo.style.marginRight = "-" + ytRecommObj / 2  + "px"
+    }
+}
 
-
-
+function getCookieValue(cookieName) {
+    let cookieString = document.cookie;
+    let cookies = cookieString.split(';'); // Teilt den Cookie-String in einzelne Cookies
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim(); // Entfernt führende und nachfolgende Leerzeichen
+        if (cookie.startsWith(cookieName + '=')) {
+            console.log("das ist der cookie: " + cookie.substring(cookieName.length + 1) )
+            if(cookie.substring(cookieName.length + 1) == "1"){
+                return true
+            }else{
+                return false
+            }
+        }
+    }
+    return false; // Wenn der Cookie nicht gefunden wird
+}
 
 
 
@@ -229,16 +312,13 @@ function removeCSS(){
 
 
 function toggleElements(arr, state){
-    console.log(arr)
     switch (state) {
         case "hide":
             for(let el of arr){
                 var dom_el = document.getElementById(el)
-                console.log(dom_el)
                 if(dom_el){
                     dom_el.classList.add(extension_prefix + "dnone")
                 }
-                console.log(dom_el)
             }
             break;
         case "show":
