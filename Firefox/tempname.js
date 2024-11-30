@@ -11,16 +11,13 @@ let global_state;
 let start_hide_array = ["page-manager", "guide-button", "items", "guide-content", "country-code"]
 let start_manip_array = ["logo", "logo-icon", "center", "end"]
 
-let result_hide_array = ["guide-button", "items", "guide-content", "country-code"]
+let result_hide_array = ["guide-button", "items", "guide-content", "items", "country-code"]
         
-
 
 
 
 //INITIALISIERUNG, WENN DIE SEITE DAS ERSTE MAL GELADEN WIRD
 document.addEventListener('DOMContentLoaded', () => {
-    console.log(window.location.href)
-    console.log(yt_start_lang.test(window.location.href))
     if (yt_start.test(window.location.href)) {
         enter_start_state()
         global_state = 0
@@ -30,33 +27,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }else if(yt_watch){
         enter_watch_state()
         global_state = 2
+    }else{
+        global_state = -1
     }
-    console.log(global_state)
 });
-
 
 //ANZEIGEN DER SEITE, WENN ALLES FERTIG GELADEN
 window.addEventListener('load', () => {
-    removeShorts()
-
+    removeBloat()
     document.body.style.display = 'block';
 });
 
 //BEOBACHTER, OB SICH DIE SEITE ÄNDERT
 new MutationObserver(() => {
-    removeShorts()
+    removeBloat()
 
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
         lastUrl = currentUrl;
-
-        //WIRD GEBRAUCHT, DAMIT DIE CONTAINER CSS REGEL IN STARTPAGE.CSS FUNKTIONIERT
-        let yt_search = document.getElementsByTagName("ytd-search")
-        if(yt_search.length > 0){
-            for (el of document.getElementsByTagName("ytd-search")) {
-                el.remove()
-            }
-        }
 
         //LEAVE CURRENT STATE
         switch (global_state) {
@@ -102,6 +90,7 @@ function enter_start_state(){
     
     //MANIPULATE SECTION
     manipulateElements(start_manip_array, "add")
+    document.getElementById("masthead").children.namedItem("container").classList.add("custom_searchbar")
 }
 
 function leave_start_state(){
@@ -113,6 +102,8 @@ function leave_start_state(){
     
     //MANIPULATE SECTION
     manipulateElements(start_manip_array, "remove")
+    document.getElementById("masthead").children.namedItem("container").classList.remove("custom_searchbar")
+
 }
 
 function enter_result_state(){
@@ -156,14 +147,14 @@ function leave_global_state(){
 
 
 
-function removeShorts(){
+function removeBloat(){
     let shortsDOMObj = document.getElementsByTagName("ytd-reel-shelf-renderer")
     if(shortsDOMObj.length > 0){
         for(let short of shortsDOMObj){
             short.remove()
         }
     }
-
+    //getting rid of ads in result page
     let test = document.getElementsByTagName("ytd-ad-slot-renderer")
     if(test.length > 0){
         for(let short of test){

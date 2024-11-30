@@ -22,9 +22,8 @@
     display: none !important;
 }
 
-#container:has(#start){
+.custom_searchbar{
     flex-direction: column !important;
     padding-top: 20vh !important;
 }
-
 
