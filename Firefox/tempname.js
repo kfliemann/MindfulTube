@@ -308,18 +308,24 @@ function checkforTheaterMode(ytRecommObj) {
     var belowVideo = document
         .getElementById('page-manager')
         .querySelector('#below');
-    //TODO: make this dynamic on window resize
-    if (!getCookieValue('wide')) {
-        pageManager.style.marginLeft = ytRecommObj / 2 + 'px';
-        pageManager.style.marginRight = '-' + ytRecommObj / 2 + 'px';
-        belowVideo.style.marginLeft = '0px';
-        belowVideo.style.marginRight = '0px';
-        document.body.style.overflowX = 'hidden';
-    } else {
+
+    //no margins on page-manager, if video is fullscreen
+    if (document.fullscreenElement) {
         pageManager.style.marginLeft = '0px';
         pageManager.style.marginRight = '0px';
-        belowVideo.style.marginLeft = ytRecommObj / 2 + 'px';
-        belowVideo.style.marginRight = '-' + ytRecommObj / 2 + 'px';
+    } else {
+        if (!getCookieValue('wide')) {
+            pageManager.style.marginLeft = ytRecommObj / 2 + 'px';
+            pageManager.style.marginRight = '-' + ytRecommObj / 2 + 'px';
+            belowVideo.style.marginLeft = '0px';
+            belowVideo.style.marginRight = '0px';
+            document.body.style.overflowX = 'hidden';
+        } else {
+            pageManager.style.marginLeft = '0px';
+            pageManager.style.marginRight = '0px';
+            belowVideo.style.marginLeft = ytRecommObj / 2 + 'px';
+            belowVideo.style.marginRight = '-' + ytRecommObj / 2 + 'px';
+        }
     }
 }
 
