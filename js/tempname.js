@@ -16,9 +16,27 @@ let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}/watch.*');
 let global_state = -1;
 let lastUrl = location.pathname;
 
-let start_hide_array = ['page-manager'];
+let start_hide_array = [
+    'page-manager',
+    'guide-button',
+    'items',
+    'guide-content',
+    'country-code',
+];
 let start_manip_array = ['logo', 'logo-icon', 'center', 'end'];
-let watch_hide_array = ['sections'];
+let result_hide_array = [
+    'guide-button',
+    'items',
+    'guide-content',
+    'country-code',
+];
+let watch_hide_array = [
+    'sections',
+    'guide-button',
+    'items',
+    'guide-content',
+    'country-code',
+];
 
 //initialize on earliest page load point
 document.addEventListener('DOMContentLoaded', () => {
@@ -100,7 +118,7 @@ new MutationObserver(() => {
 
 //all changes made to start page
 function enter_start_state() {
-    injectCSS('startpage.css');
+    injectCSS('./styles/startpage.css');
 
     //hide section
     toggleElements(start_hide_array, 'hide');
@@ -136,17 +154,19 @@ function leave_start_state() {
 
 //all changes made to result page
 function enter_result_state() {
-    injectCSS('resultpage.css');
+    injectCSS('.styles/resultpage.css');
+    toggleElements(result_hide_array, 'hide');
 }
 
 //undo all changes made to result page
 function leave_result_state() {
     removeCSS();
+    toggleElements(result_hide_array, 'show');
 }
 
 //all changes made to watch page
 function enter_watch_state() {
-    injectCSS('watchpage.css');
+    injectCSS('.styles/watchpage.css');
 
     //hide section
     toggleElements(watch_hide_array, 'hide');
@@ -182,16 +202,21 @@ function leave_watch_state() {
 
     //hide section
     toggleElements(watch_hide_array, 'show');
-    document
-        .getElementById('page-manager')
+    let pageManager = document.getElementById('page-manager');
+
+    pageManager
         .querySelector('ytd-comments')
         .classList.remove(extension_prefix + 'dnone');
-    document
-        .getElementById('page-manager')
+    pageManager
         .querySelector('#secondary')
         .classList.remove(extension_prefix + 'dnone');
 
-    //manipulate section doesn't need to be reset, because it is reloaded on every new visit anyway and doesn't stay in the DOM
+    //manipulate section (needs to be reset, page-manager doesn't get fully reloaded)
+    pageManager.classList.remove(extension_prefix + 'page_manager');
+    pageManager
+        .querySelector('#below')
+        .classList.remove(extension_prefix + 'below_video');
+    document.body.classList.add(extension_prefix + 'body');
 }
 
 //inject custom css file
@@ -311,21 +336,62 @@ function checkforTheaterMode(ytRecommObj) {
 
     //no margins on page-manager, if video is fullscreen
     if (document.fullscreenElement) {
-        pageManager.style.marginLeft = '0px';
-        pageManager.style.marginRight = '0px';
+        document.documentElement.style.setProperty(
+            '--manager-margin-left',
+            '0px'
+        );
+        document.documentElement.style.setProperty(
+            '--manager-margin-right',
+            '0px'
+        );
+        pageManager.classList.add(extension_prefix + 'page_manager');
     } else {
         if (!getCookieValue('wide')) {
-            pageManager.style.marginLeft = ytRecommObj / 2 + 'px';
-            pageManager.style.marginRight = '-' + ytRecommObj / 2 + 'px';
-            belowVideo.style.marginLeft = '0px';
-            belowVideo.style.marginRight = '0px';
-            document.body.style.overflowX = 'hidden';
+            document.documentElement.style.setProperty(
+                '--manager-margin-left',
+                ytRecommObj / 2 + 'px',
+                'important'
+            );
+            document.documentElement.style.setProperty(
+                '--manager-margin-right',
+                '-' + ytRecommObj / 2 + 'px',
+                'important'
+            );
+            document.documentElement.style.setProperty(
+                '--belowvid-margin-left',
+                '0px',
+                'important'
+            );
+            document.documentElement.style.setProperty(
+                '--belowvid-margin-right',
+                '0px',
+                'important'
+            );
+            document.body.classList.add(extension_prefix + 'body');
         } else {
-            pageManager.style.marginLeft = '0px';
-            pageManager.style.marginRight = '0px';
-            belowVideo.style.marginLeft = ytRecommObj / 2 + 'px';
-            belowVideo.style.marginRight = '-' + ytRecommObj / 2 + 'px';
+            document.documentElement.style.setProperty(
+                '--dynamic-margin-left',
+                '0px',
+                'important'
+            );
+            document.documentElement.style.setProperty(
+                '--dynamic-margin-right',
+                '0px',
+                'important'
+            );
+            document.documentElement.style.setProperty(
+                '--belowvid-margin-left',
+                ytRecommObj / 2 + 'px',
+                'important'
+            );
+            document.documentElement.style.setProperty(
+                '--belowvid-margin-right',
+                '-' + ytRecommObj / 2 + 'px',
+                'important'
+            );
         }
+        pageManager.classList.add(extension_prefix + 'page_manager');
+        belowVideo.classList.add(extension_prefix + 'below_video');
     }
 }
 

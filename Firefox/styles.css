@@ -1,7 +1,0 @@
-body{
-    display: none;
-}
-
-#guide-button, #items, #guide-content, #country-code{
-    display: none !important;
-}

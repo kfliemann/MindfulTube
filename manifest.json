@@ -1,0 +1,29 @@
+{
+    "manifest_version": 2,
+    "name": "Tempname",
+    "version": "1.0",
+
+    "description": "Adds a temp description",
+
+    "icons": {
+        "48": "icons/tempname-48.png"
+    },
+    "permissions" : [
+      "storage" 
+    ],
+    "content_scripts": [
+        {
+            "matches": ["*://*.youtube.com/*", "*://*.youtube.de/*"],
+            "css": ["./styles/styles.css"],
+            "js": ["./js/tempname.js"],
+            "run_at": "document_start"
+        }
+    ],
+    "browser_action": {
+        "default_icon": {
+            "64": "icons/hideshort-64.png"
+        },
+        "default_title": "Hide-Shorts",
+        "default_popup": "./settings/extensionSettings.html"
+    }
+}

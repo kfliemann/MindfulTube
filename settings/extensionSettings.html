@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=M+PLUS+2&display=swap" rel="stylesheet">
+        <meta charset="utf-8">
+        <link href="./extensionSettings.css" rel="stylesheet">
+        <script src="./extensionSettings.js"></script>
+        <script>console.log("test")</script>
+    </head>
+    <body>
+        <center>
+            <img id="ghlink" src="../icons/hideshort-64.png" title="Hide Youtube-Shorts">
+            <h2>Hide Youtube-Shorts</h2>
+        </center>
+
+        <!-- Options -->
+        <fieldset id="settings" style="pointer-events: auto; opacity: 1;">
+            <legend id="settings_text">
+                Options
+            </legend>
+    
+            <label class="setting">
+                <input type="checkbox" id="hideYtStartPage">
+                <span id="hideYtStartPage_span" class="switchLabel" title="">
+                    Hide Start page
+                </span>
+            </label>
+            <br>
+            <label class="setting">
+                <input type="checkbox" id="hideYtResultPage">
+                <span id="hideYtResultPage_span" class="switchLabel">
+                    Hide Result page
+                </span>
+            </label>
+            <br>
+            <label class="setting">
+                <input type="checkbox" id="hideYtWatchPage">
+                <span id="hideYtWatchPage_span" class="switchLabel">
+                    Hide Watch page
+                </span>
+            </label>
+        </fieldset>
+
+
+        <div class="bottom">
+            <!-- Links -->
+            <a href="https://github.com/Vulpelo/hide-youtube-shorts">
+                <img id="ghlink" src="../icons/GitHub-Mark-32px.png" title="GitHub" width="20" height="20">
+            </a>
+            <!-- Version -->
+            <a class="right">
+                <span style="text-align: right;" id="ext-version"></span>
+            </a>
+        </div>
+    </body>
+</html>

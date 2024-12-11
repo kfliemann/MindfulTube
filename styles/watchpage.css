@@ -1,0 +1,24 @@
+:root {
+    --manager-margin-left: 0px;
+    --manager-margin-right: 0px;
+    --belowvid-margin-left: 0px;
+    --belowvid-margin-right: 0px;
+}
+
+.custom_dnone{
+    display: none !important;
+}
+
+.custom_body{
+    overflow-x: hidden;
+}
+
+.custom_page_manager{
+    margin-left: var(--manager-margin-left) !important;
+    margin-right: var(--manager-margin-right) !important;
+}
+
+.custom_below_video{
+    margin-left: var(--belowvid-margin-left) !important;
+    margin-right: var(--belowvid-margin-right) !important;
+}
