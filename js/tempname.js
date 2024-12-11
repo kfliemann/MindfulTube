@@ -6,6 +6,12 @@ let yt_start_lang = new RegExp('youtube.[a-zA-Z]{1,4}(/)??.*');
 let yt_result = new RegExp('youtube.[a-zA-Z]{1,4}/results.*');
 let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}/watch.*');
 
+//presets the extension configs
+let hide_start;
+let hide_result;
+let hide_watch;
+let config_arr;
+
 /**
  * possible states:
  * 0 = start page
@@ -39,15 +45,23 @@ let watch_hide_array = [
 ];
 
 //initialize on earliest page load point
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkForConfig();
+
     if (yt_start.test(window.location.href)) {
-        enter_start_state();
+        if (hide_start.id) {
+            enter_start_state();
+        }
         global_state = 0;
     } else if (yt_result.test(window.location.href)) {
-        enter_result_state();
+        if (hide_result.id) {
+            enter_result_state();
+        }
         global_state = 1;
     } else if (yt_watch.test(window.location.href)) {
-        enter_watch_state();
+        if (hide_watch.id) {
+            enter_watch_state();
+        }
         global_state = 2;
     } else {
         global_state = -1;
@@ -61,12 +75,11 @@ window.addEventListener('load', () => {
 });
 
 //site observer to look out for page changes
-new MutationObserver(() => {
+new MutationObserver(async () => {
     //needs to be called on every observer call in case new shorts /ads get loaded on resultpage scroll
     if (yt_result.test(window.location.href)) {
         removeBloat();
     }
-
     //check for theatermode and rearrange /watch page accordingly
     if (yt_watch.test(window.location.href)) {
         let ytRecommObj = document
@@ -78,37 +91,56 @@ new MutationObserver(() => {
         }
     }
 
+    chrome.storage.local.get(null, (value) => {
+        console.log(value);
+    });
+
+    
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
+        await checkForConfig();
+
         lastUrl = currentUrl;
 
         //leave current state on page switch
         switch (global_state) {
             case 0:
-                leave_start_state();
+                if (hide_start.id) {
+                    leave_start_state();
+                }
                 break;
             case 1:
-                leave_result_state();
+                if (hide_result.id) {
+                    leave_result_state();
+                }
                 break;
             case 2:
-                leave_watch_state();
+                if (hide_watch.id) {
+                    leave_watch_state();
+                }
                 break;
             default:
-                leave_start_state();
-                leave_result_state();
-                leave_watch_state();
+                //leave_start_state();
+                //leave_result_state();
+                //leave_watch_state();
                 break;
         }
 
         //enter new state based on new page
         if (yt_start.test(window.location.href)) {
-            enter_start_state();
+            if (hide_start.id) {
+                enter_start_state();
+            }
             global_state = 0;
         } else if (yt_result.test(window.location.href)) {
-            enter_result_state();
+            if (hide_result.id) {
+                enter_result_state();
+            }
             global_state = 1;
         } else if (yt_watch.test(window.location.href)) {
-            enter_watch_state();
+            if (hide_watch.id) {
+                enter_watch_state();
+            }
             global_state = 2;
         } else {
             global_state = -1;
@@ -395,7 +427,7 @@ function checkforTheaterMode(ytRecommObj) {
     }
 }
 
-//someone explain to me why there no built in function to return cookies as array (for example: document.cookie.toArray() or something)
+//someone explain to me why there is no built in function to return cookies as array (for example: document.cookie.toArray() or something)
 function getCookieValue(cookieName) {
     let cookieString = document.cookie;
     let cookies = cookieString.split(';');
@@ -410,4 +442,25 @@ function getCookieValue(cookieName) {
         }
     }
     return false;
+}
+
+//checks the config of the extension, getting the values works async
+async function checkForConfig() {
+    hide_start = { key: 'hideYtStartPage', id: true };
+    hide_result = { key: 'hideYtResultPage', id: true };
+    hide_watch = { key: 'hideYtWatchPage', id: true };
+    config_arr = [hide_start, hide_result, hide_watch];
+
+    for (let configObj of config_arr) {
+        const value = await new Promise((resolve) => {
+            chrome.storage.local.get([configObj.key], (result) => {
+                resolve(result);
+            });
+        });
+        if (value[configObj.key] === undefined) {
+            chrome.storage.local.set({ [configObj.key]: configObj.id });
+        } else {
+            configObj.id = value[configObj.key];
+        }
+    }
 }
