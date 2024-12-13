@@ -7,10 +7,10 @@ let yt_result = new RegExp('youtube.[a-zA-Z]{1,4}/results.*');
 let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}/watch.*');
 
 //presets the extension configs
-let hide_start;
-let hide_result;
-let hide_watch;
-let config_arr;
+let hide_start = { key: 'hideYtStartPage', id: true };
+let hide_result = { key: 'hideYtResultPage', id: true };
+let hide_watch = { key: 'hideYtWatchPage', id: true };
+let config_arr = [hide_start, hide_result, hide_watch];
 
 /**
  * possible states:
@@ -45,8 +45,8 @@ let watch_hide_array = [
 ];
 
 //initialize on earliest page load point
-document.addEventListener('DOMContentLoaded', async () => {
-    await checkForConfig();
+document.addEventListener('DOMContentLoaded', () => {
+    initCookies();
 
     if (yt_start.test(window.location.href)) {
         if (hide_start.id) {
@@ -91,11 +91,9 @@ new MutationObserver(async () => {
         }
     }
 
-    chrome.storage.local.get(null, (value) => {
-        console.log(value);
-    });
 
-    
+    updateCookies()
+
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
         await checkForConfig();
@@ -138,6 +136,8 @@ new MutationObserver(async () => {
             }
             global_state = 1;
         } else if (yt_watch.test(window.location.href)) {
+            console.log(config_arr);
+            console.log('das hier ist: ' + hide_watch.id);
             if (hide_watch.id) {
                 enter_watch_state();
             }
@@ -150,7 +150,7 @@ new MutationObserver(async () => {
 
 //all changes made to start page
 function enter_start_state() {
-    injectCSS('./styles/startpage.css');
+    injectCSS('./styles/startpage.css', 'startpage');
 
     //hide section
     toggleElements(start_hide_array, 'hide');
@@ -186,7 +186,7 @@ function leave_start_state() {
 
 //all changes made to result page
 function enter_result_state() {
-    injectCSS('.styles/resultpage.css');
+    injectCSS('./styles/resultpage.css', 'resultpage');
     toggleElements(result_hide_array, 'hide');
 }
 
@@ -198,7 +198,7 @@ function leave_result_state() {
 
 //all changes made to watch page
 function enter_watch_state() {
-    injectCSS('.styles/watchpage.css');
+    injectCSS('./styles/watchpage.css', 'watchpage');
 
     //hide section
     toggleElements(watch_hide_array, 'hide');
@@ -252,11 +252,11 @@ function leave_watch_state() {
 }
 
 //inject custom css file
-function injectCSS(fileName) {
+function injectCSS(fileName, cssSheetName) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = browser.runtime.getURL(fileName);
-    link.id = extension_prefix + 'css_sheet'; // Um es später zu entfernen
+    link.id = extension_prefix + cssSheetName + 'css_sheet'; // Um es später zu entfernen
     document.head.appendChild(link);
 }
 
@@ -444,23 +444,59 @@ function getCookieValue(cookieName) {
     return false;
 }
 
-//checks the config of the extension, getting the values works async
-async function checkForConfig() {
-    hide_start = { key: 'hideYtStartPage', id: true };
-    hide_result = { key: 'hideYtResultPage', id: true };
-    hide_watch = { key: 'hideYtWatchPage', id: true };
-    config_arr = [hide_start, hide_result, hide_watch];
 
+//checks the config of the extension, getting the values works async
+function initStorage() {
     for (let configObj of config_arr) {
-        const value = await new Promise((resolve) => {
+        const value = new Promise((resolve) => {
             chrome.storage.local.get([configObj.key], (result) => {
                 resolve(result);
             });
         });
         if (value[configObj.key] === undefined) {
+            console.log("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß")
             chrome.storage.local.set({ [configObj.key]: configObj.id });
-        } else {
-            configObj.id = value[configObj.key];
         }
+    } 
+}
+
+
+//sets the cookies
+function initCookies() {
+    config_arr.forEach((element) => {
+        if (!getCookieValue(element.key)) {
+            document.cookie = element.key + '=' + element.id;
+        }
+    });
+}
+
+async function updateCookies(){
+    let cookieString = document.cookie;
+    let cookies = cookieString.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        
+        config_arr.forEach(async element => {  
+            console.log("config arr element: " + element.key + " element id: " + element.id)          
+            let value = await new Promise((resolve) => {
+                chrome.storage.local.get([element.key], (result) => {
+                    resolve(result);
+                });
+            });
+            console.log("storage value: " + value[element.key])
+            if (cookie.startsWith(element.key + '=')) {
+                console.log(cookie.substring(element.key.length + 1))
+                if (cookie.substring(element.key.length + 1) != value[element.key].toString()) {
+                    console.log("hier war der storage nicht gleich wie der cookie ###########################################################################################################")
+                    document.cookie = element.key + '=' + value[element.key].toString();
+                }
+            }
+            console.log("updated config arr element: " + element.key + " element id: " + element.id)
+        });
     }
 }
+
+
+
+initCookies();
+initStorage();
