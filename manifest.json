@@ -8,9 +8,10 @@
     "icons": {
         "48": "icons/tempname-48.png"
     },
-    "permissions" : [
-      "storage" 
-    ],
+    "permissions": ["cookies", "tabs"],
+    "background": {
+        "scripts": ["./js/background.js"]
+    },
     "content_scripts": [
         {
             "matches": ["*://*.youtube.com/*", "*://*.youtube.de/*"],

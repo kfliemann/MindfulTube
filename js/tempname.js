@@ -7,9 +7,9 @@ let yt_result = new RegExp('youtube.[a-zA-Z]{1,4}/results.*');
 let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}/watch.*');
 
 //presets the extension configs
-let hide_start = { key: 'hideYtStartPage', id: true };
-let hide_result = { key: 'hideYtResultPage', id: true };
-let hide_watch = { key: 'hideYtWatchPage', id: true };
+let hide_start = { key: 'hideYtStartPage', value: true };
+let hide_result = { key: 'hideYtResultPage', value: true };
+let hide_watch = { key: 'hideYtWatchPage', value: true };
 let config_arr = [hide_start, hide_result, hide_watch];
 
 /**
@@ -44,22 +44,49 @@ let watch_hide_array = [
     'country-code',
 ];
 
+//listens for messages from background.js
+//sends all cookies to background.js / sets new cookie value from background.js
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    switch (message.direction) {
+        case 'getCookies':
+            sendResponse({ data: getCookieArray() });
+            break;
+        case 'setCookie':
+            document.cookie = message.data.key + '=' + message.data.value;
+            break;
+    }
+});
+
+//init cookies needed to deal avoid asynchronity of chrome.storage when switching pages
+function initExtensionCookies() {
+    let cookieArray = getCookieArray();
+    config_arr.forEach((config) => {
+        const cookie = cookieArray.find((item) => item.key === config.key);
+
+        if (!cookie) {
+            document.cookie = config.key + '=' + config.value;
+        }else{
+            config.value = JSON.parse(cookie.value)
+        }
+    });
+}
+
 //initialize on earliest page load point
 document.addEventListener('DOMContentLoaded', () => {
-    initCookies();
+    initExtensionCookies();
 
     if (yt_start.test(window.location.href)) {
-        if (hide_start.id) {
+        if (hide_start.value) {
             enter_start_state();
         }
         global_state = 0;
     } else if (yt_result.test(window.location.href)) {
-        if (hide_result.id) {
+        if (hide_result.value) {
             enter_result_state();
         }
         global_state = 1;
     } else if (yt_watch.test(window.location.href)) {
-        if (hide_watch.id) {
+        if (hide_watch.value) {
             enter_watch_state();
         }
         global_state = 2;
@@ -75,7 +102,7 @@ window.addEventListener('load', () => {
 });
 
 //site observer to look out for page changes
-new MutationObserver(async () => {
+new MutationObserver(() => {
     //needs to be called on every observer call in case new shorts /ads get loaded on resultpage scroll
     if (yt_result.test(window.location.href)) {
         removeBloat();
@@ -91,29 +118,24 @@ new MutationObserver(async () => {
         }
     }
 
-
-    updateCookies()
-
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
-        await checkForConfig();
-
         lastUrl = currentUrl;
 
         //leave current state on page switch
         switch (global_state) {
             case 0:
-                if (hide_start.id) {
+                if (hide_start.value) {
                     leave_start_state();
                 }
                 break;
             case 1:
-                if (hide_result.id) {
+                if (hide_result.value) {
                     leave_result_state();
                 }
                 break;
             case 2:
-                if (hide_watch.id) {
+                if (hide_watch.value) {
                     leave_watch_state();
                 }
                 break;
@@ -124,21 +146,21 @@ new MutationObserver(async () => {
                 break;
         }
 
+        updateVariablesFromCookie()
+
         //enter new state based on new page
         if (yt_start.test(window.location.href)) {
-            if (hide_start.id) {
+            if (hide_start.value) {
                 enter_start_state();
             }
             global_state = 0;
         } else if (yt_result.test(window.location.href)) {
-            if (hide_result.id) {
+            if (hide_result.value) {
                 enter_result_state();
             }
             global_state = 1;
         } else if (yt_watch.test(window.location.href)) {
-            console.log(config_arr);
-            console.log('das hier ist: ' + hide_watch.id);
-            if (hide_watch.id) {
+            if (hide_watch.value) {
                 enter_watch_state();
             }
             global_state = 2;
@@ -251,6 +273,7 @@ function leave_watch_state() {
     document.body.classList.add(extension_prefix + 'body');
 }
 
+
 //inject custom css file
 function injectCSS(fileName, cssSheetName) {
     const link = document.createElement('link');
@@ -338,6 +361,19 @@ function waitForElement(
     });
 }
 
+
+//update local variables to match with cookies
+//needed after resetting a page to default on leave and before entering a new page
+function updateVariablesFromCookie() {
+    let cookieArray = getCookieArray();
+    config_arr.forEach((element) => {
+        const cookieValue = cookieArray.find(
+            (item) => item.key === element.key
+        )?.value;
+        element.value = JSON.parse(cookieValue);
+    });
+}
+
 //collection of things that need to be removed
 function removeBloat() {
     //getting rid of shorts in result page
@@ -356,7 +392,6 @@ function removeBloat() {
     }
 }
 
-//CHECK IF THEADERMODE IS ON, IF ON THEN DONT ADD CENTERING MARGINS
 //check if theater mode is on
 //if theater mode is on, add margin to description
 //if theater mode is off, add margin to page-manager
@@ -444,59 +479,17 @@ function getCookieValue(cookieName) {
     return false;
 }
 
-
-//checks the config of the extension, getting the values works async
-function initStorage() {
-    for (let configObj of config_arr) {
-        const value = new Promise((resolve) => {
-            chrome.storage.local.get([configObj.key], (result) => {
-                resolve(result);
-            });
-        });
-        if (value[configObj.key] === undefined) {
-            console.log("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß")
-            chrome.storage.local.set({ [configObj.key]: configObj.id });
-        }
-    } 
-}
-
-
-//sets the cookies
-function initCookies() {
-    config_arr.forEach((element) => {
-        if (!getCookieValue(element.key)) {
-            document.cookie = element.key + '=' + element.id;
-        }
-    });
-}
-
-async function updateCookies(){
+//transform document.cookie string to array of cookie objects
+function getCookieArray() {
     let cookieString = document.cookie;
     let cookies = cookieString.split(';');
+    let cookieArray = [];
     for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].trim();
-        
-        config_arr.forEach(async element => {  
-            console.log("config arr element: " + element.key + " element id: " + element.id)          
-            let value = await new Promise((resolve) => {
-                chrome.storage.local.get([element.key], (result) => {
-                    resolve(result);
-                });
-            });
-            console.log("storage value: " + value[element.key])
-            if (cookie.startsWith(element.key + '=')) {
-                console.log(cookie.substring(element.key.length + 1))
-                if (cookie.substring(element.key.length + 1) != value[element.key].toString()) {
-                    console.log("hier war der storage nicht gleich wie der cookie ###########################################################################################################")
-                    document.cookie = element.key + '=' + value[element.key].toString();
-                }
-            }
-            console.log("updated config arr element: " + element.key + " element id: " + element.id)
+        let cookieString = cookies[i].trim();
+        cookieArray.push({
+            key: cookieString.substring(0, cookieString.indexOf('=')),
+            value: cookieString.substring(cookieString.indexOf('=') + 1),
         });
     }
+    return cookieArray;
 }
-
-
-
-initCookies();
-initStorage();

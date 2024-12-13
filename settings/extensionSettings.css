@@ -88,3 +88,7 @@ summary:hover, .details {
 	top: 0.75em;
 	background: #ffffff;
 }
+
+#errorMessage{
+    display:none;
+}
