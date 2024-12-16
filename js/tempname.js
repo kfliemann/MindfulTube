@@ -1,10 +1,11 @@
 //GLOBAL VARIABLES
 let extension_prefix = 'custom_';
 
-let yt_start = new RegExp('youtube.[a-zA-Z]{1,4}(/)?$');
-let yt_start_lang = new RegExp('youtube.[a-zA-Z]{1,4}(/)??.*');
-let yt_result = new RegExp('youtube.[a-zA-Z]{1,4}/results.*');
-let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}/watch.*');
+let yt_start = new RegExp('youtube.[a-zA-Z]{1,4}(\\/)?$');
+let yt_start_theme = new RegExp('\\?themeRefresh=1');
+let yt_start_lang = new RegExp('youtube.[a-zA-Z]{1,4}(\\/)??.*');
+let yt_result = new RegExp('youtube.[a-zA-Z]{1,4}\\/results.*');
+let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}\\/watch.*');
 
 //presets the extension configs
 let hide_start = { key: 'hideYtStartPage', value: true };
@@ -65,8 +66,8 @@ function initExtensionCookies() {
 
         if (!cookie) {
             document.cookie = config.key + '=' + config.value;
-        }else{
-            config.value = JSON.parse(cookie.value)
+        } else {
+            config.value = JSON.parse(cookie.value);
         }
     });
 }
@@ -75,7 +76,10 @@ function initExtensionCookies() {
 document.addEventListener('DOMContentLoaded', () => {
     initExtensionCookies();
 
-    if (yt_start.test(window.location.href)) {
+    if (
+        yt_start.test(window.location.href) ||
+        yt_start_theme.test(window.location.search)
+    ) {
         if (hide_start.value) {
             enter_start_state();
         }
@@ -98,6 +102,28 @@ document.addEventListener('DOMContentLoaded', () => {
 //display body, when everything initialized
 window.addEventListener('load', () => {
     removeBloat();
+    if (
+        yt_start.test(window.location.href) ||
+        yt_start_theme.test(window.location.search)
+    ) {
+        if (hide_start.value) {
+            enter_start_state();
+        }
+        global_state = 0;
+    } else if (yt_result.test(window.location.href)) {
+        if (hide_result.value) {
+            enter_result_state();
+        }
+        global_state = 1;
+    } else if (yt_watch.test(window.location.href)) {
+        if (hide_watch.value) {
+            enter_watch_state();
+        }
+        global_state = 2;
+    } else {
+        global_state = -1;
+    }
+
     document.body.style.display = 'block';
 });
 
@@ -146,7 +172,7 @@ new MutationObserver(() => {
                 break;
         }
 
-        updateVariablesFromCookie()
+        updateVariablesFromCookie();
 
         //enter new state based on new page
         if (yt_start.test(window.location.href)) {
@@ -273,7 +299,6 @@ function leave_watch_state() {
     document.body.classList.add(extension_prefix + 'body');
 }
 
-
 //inject custom css file
 function injectCSS(fileName, cssSheetName) {
     const link = document.createElement('link');
@@ -360,7 +385,6 @@ function waitForElement(
         });
     });
 }
-
 
 //update local variables to match with cookies
 //needed after resetting a page to default on leave and before entering a new page
