@@ -75,28 +75,6 @@ function initExtensionCookies() {
 //initialize on earliest page load point
 document.addEventListener('DOMContentLoaded', () => {
     initExtensionCookies();
-
-    if (
-        yt_start.test(window.location.href) ||
-        yt_start_theme.test(window.location.search)
-    ) {
-        if (hide_start.value) {
-            enter_start_state();
-        }
-        global_state = 0;
-    } else if (yt_result.test(window.location.href)) {
-        if (hide_result.value) {
-            enter_result_state();
-        }
-        global_state = 1;
-    } else if (yt_watch.test(window.location.href)) {
-        if (hide_watch.value) {
-            enter_watch_state();
-        }
-        global_state = 2;
-    } else {
-        global_state = -1;
-    }
 });
 
 //display body, when everything initialized
@@ -123,7 +101,7 @@ window.addEventListener('load', () => {
     } else {
         global_state = -1;
     }
-
+    addElementsToSearchbar();
     document.body.style.display = 'block';
 });
 
@@ -516,4 +494,64 @@ function getCookieArray() {
         });
     }
     return cookieArray;
+}
+
+function addElementsToSearchbar() {
+    if (!document.querySelector('#avatar-btn')) {
+        //return;
+    }
+
+    const observer = new MutationObserver(() => {
+        let buttonContainer = document
+            .getElementById('masthead')
+            .children.namedItem('container')
+            .children.namedItem('end')
+            .children.namedItem('buttons');
+        let subscriptionsBool = false;
+        let playlistBool = false;
+        let historyBool = false;
+
+        if (buttonContainer) {
+            historyBool = findLinkElement('/feed/history', buttonContainer);
+            playlistBool = findLinkElement('/feed/playlists', buttonContainer);
+            subscriptionsBool = findLinkElement('/feed/subscriptions',buttonContainer);
+        }
+        playlistBool = true
+        if (playlistBool && subscriptionsBool && historyBool) {
+            observer.disconnect();
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+}
+
+function findLinkElement(pathName, buttonContainer) {
+    const elements = document.getElementsByTagName('a');
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].pathname === pathName) {
+            let divContainer = buttonContainer.children.namedItem(
+                extension_prefix + 'button_container'
+            );
+            if (!divContainer) {
+                divContainer = document.createElement('div');
+                divContainer.style.display = 'flex';
+                divContainer.style.marginRight = '10px';
+                divContainer.setAttribute('id', extension_prefix + 'button_container');
+                buttonContainer.prepend(divContainer);
+            }
+            elements[i].getElementsByTagName('yt-icon')[0].style.marginRight =
+                '5px';
+            elements[i].getElementsByTagName('yt-icon')[0].style.marginLeft =
+                '5px';
+            elements[i].getElementsByTagName(
+                'yt-formatted-string'
+            )[0].style.display = 'none';
+            divContainer.prepend(elements[i]);
+            return true; // Gefundenes Element zurückgeben
+        }
+    }
+    return false; // Kein Element gefunden
 }
