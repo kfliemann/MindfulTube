@@ -23,27 +23,10 @@ let config_arr = [hide_start, hide_result, hide_watch];
 let global_state = -1;
 let lastUrl = location.pathname;
 
-let start_hide_array = [
-    'page-manager',
-    'guide-button',
-    'items',
-    'guide-content',
-    'country-code',
-];
+let start_hide_array = ['page-manager', 'guide-button', 'items', 'guide-content', 'country-code'];
 let start_manip_array = ['logo', 'logo-icon', 'center', 'end'];
-let result_hide_array = [
-    'guide-button',
-    'items',
-    'guide-content',
-    'country-code',
-];
-let watch_hide_array = [
-    'sections',
-    'guide-button',
-    'items',
-    'guide-content',
-    'country-code',
-];
+let result_hide_array = ['guide-button', 'items', 'guide-content', 'country-code'];
+let watch_hide_array = ['sections', 'guide-button', 'items', 'guide-content', 'country-code'];
 
 //listens for messages from background.js
 //sends all cookies to background.js / sets new cookie value from background.js
@@ -80,10 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //display body, when everything initialized
 window.addEventListener('load', () => {
     removeBloat();
-    if (
-        yt_start.test(window.location.href) ||
-        yt_start_theme.test(window.location.search)
-    ) {
+    if (yt_start.test(window.location.href) || yt_start_theme.test(window.location.search)) {
         if (hide_start.value) {
             enter_start_state();
         }
@@ -113,10 +93,7 @@ new MutationObserver(() => {
     }
     //check for theatermode and rearrange /watch page accordingly
     if (yt_watch.test(window.location.href)) {
-        let ytRecommObj = document
-            .getElementById('page-manager')
-            .querySelector('#columns')
-            .querySelector('#secondary');
+        let ytRecommObj = document.getElementById('page-manager').querySelector('#columns').querySelector('#secondary');
         if (ytRecommObj) {
             checkforTheaterMode(ytRecommObj.offsetWidth);
         }
@@ -180,16 +157,11 @@ function enter_start_state() {
 
     //hide section
     toggleElements(start_hide_array, 'hide');
-    document
-        .getElementsByTagName('ytd-mini-guide-renderer')[0]
-        .classList.add(extension_prefix + 'dnone');
+    document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.add(extension_prefix + 'dnone');
 
     //manipulate section
     manipulateElements(start_manip_array, 'add');
-    document
-        .getElementById('masthead')
-        .children.namedItem('container')
-        .classList.add('custom_searchbar');
+    document.getElementById('masthead').children.namedItem('container').classList.add('custom_searchbar');
 }
 
 //undo all changes made to start page
@@ -198,16 +170,11 @@ function leave_start_state() {
 
     //hide section
     toggleElements(start_hide_array, 'show');
-    document
-        .getElementsByTagName('ytd-mini-guide-renderer')[0]
-        .classList.remove(extension_prefix + 'dnone');
+    document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.remove(extension_prefix + 'dnone');
 
     //manipulate section
     manipulateElements(start_manip_array, 'remove');
-    document
-        .getElementById('masthead')
-        .children.namedItem('container')
-        .classList.remove('custom_searchbar');
+    document.getElementById('masthead').children.namedItem('container').classList.remove('custom_searchbar');
 }
 
 //all changes made to result page
@@ -240,9 +207,7 @@ function enter_watch_state() {
             //because we waited for the promise to return we have now access to all loaded children of #page-manager
 
             //remove comments
-            asyncObj
-                .querySelector('ytd-comments')
-                .classList.add(extension_prefix + 'dnone');
+            asyncObj.querySelector('ytd-comments').classList.add(extension_prefix + 'dnone');
 
             //remove recommended videos
             //in order to not mess up the video controls (moving around parts of the site messes with the position of video controls for some reason)
@@ -262,18 +227,12 @@ function leave_watch_state() {
     toggleElements(watch_hide_array, 'show');
     let pageManager = document.getElementById('page-manager');
 
-    pageManager
-        .querySelector('ytd-comments')
-        .classList.remove(extension_prefix + 'dnone');
-    pageManager
-        .querySelector('#secondary')
-        .classList.remove(extension_prefix + 'dnone');
+    pageManager.querySelector('ytd-comments').classList.remove(extension_prefix + 'dnone');
+    pageManager.querySelector('#secondary').classList.remove(extension_prefix + 'dnone');
 
     //manipulate section (needs to be reset, page-manager doesn't get fully reloaded)
     pageManager.classList.remove(extension_prefix + 'page_manager');
-    pageManager
-        .querySelector('#below')
-        .classList.remove(extension_prefix + 'below_video');
+    pageManager.querySelector('#below').classList.remove(extension_prefix + 'below_video');
     document.body.classList.add(extension_prefix + 'body');
 }
 
@@ -340,11 +299,7 @@ function manipulateElements(arr, state) {
 }
 
 //wait for any async element to be loaded
-function waitForElement(
-    selector,
-    observeElement = document.body,
-    { childList = true, subtree = true } = {}
-) {
+function waitForElement(selector, observeElement = document.body, { childList = true, subtree = true } = {}) {
     return new Promise((resolve) => {
         let element = document.querySelector(selector);
         if (element) {
@@ -369,9 +324,7 @@ function waitForElement(
 function updateVariablesFromCookie() {
     let cookieArray = getCookieArray();
     config_arr.forEach((element) => {
-        const cookieValue = cookieArray.find(
-            (item) => item.key === element.key
-        )?.value;
+        const cookieValue = cookieArray.find((item) => item.key === element.key)?.value;
         element.value = JSON.parse(cookieValue);
     });
 }
@@ -399,65 +352,25 @@ function removeBloat() {
 //if theater mode is off, add margin to page-manager
 function checkforTheaterMode(ytRecommObj) {
     var pageManager = document.getElementById('page-manager');
-    var belowVideo = document
-        .getElementById('page-manager')
-        .querySelector('#below');
+    var belowVideo = document.getElementById('page-manager').querySelector('#below');
 
     //no margins on page-manager, if video is fullscreen
     if (document.fullscreenElement) {
-        document.documentElement.style.setProperty(
-            '--manager-margin-left',
-            '0px'
-        );
-        document.documentElement.style.setProperty(
-            '--manager-margin-right',
-            '0px'
-        );
+        document.documentElement.style.setProperty('--manager-margin-left', '0px');
+        document.documentElement.style.setProperty('--manager-margin-right', '0px');
         pageManager.classList.add(extension_prefix + 'page_manager');
     } else {
         if (!getCookieValue('wide')) {
-            document.documentElement.style.setProperty(
-                '--manager-margin-left',
-                ytRecommObj / 2 + 'px',
-                'important'
-            );
-            document.documentElement.style.setProperty(
-                '--manager-margin-right',
-                '-' + ytRecommObj / 2 + 'px',
-                'important'
-            );
-            document.documentElement.style.setProperty(
-                '--belowvid-margin-left',
-                '0px',
-                'important'
-            );
-            document.documentElement.style.setProperty(
-                '--belowvid-margin-right',
-                '0px',
-                'important'
-            );
+            document.documentElement.style.setProperty('--manager-margin-left', ytRecommObj / 2 + 'px', 'important');
+            document.documentElement.style.setProperty('--manager-margin-right', '-' + ytRecommObj / 2 + 'px', 'important');
+            document.documentElement.style.setProperty('--belowvid-margin-left', '0px', 'important');
+            document.documentElement.style.setProperty('--belowvid-margin-right', '0px', 'important');
             document.body.classList.add(extension_prefix + 'body');
         } else {
-            document.documentElement.style.setProperty(
-                '--dynamic-margin-left',
-                '0px',
-                'important'
-            );
-            document.documentElement.style.setProperty(
-                '--dynamic-margin-right',
-                '0px',
-                'important'
-            );
-            document.documentElement.style.setProperty(
-                '--belowvid-margin-left',
-                ytRecommObj / 2 + 'px',
-                'important'
-            );
-            document.documentElement.style.setProperty(
-                '--belowvid-margin-right',
-                '-' + ytRecommObj / 2 + 'px',
-                'important'
-            );
+            document.documentElement.style.setProperty('--dynamic-margin-left', '0px', 'important');
+            document.documentElement.style.setProperty('--dynamic-margin-right', '0px', 'important');
+            document.documentElement.style.setProperty('--belowvid-margin-left', ytRecommObj / 2 + 'px', 'important');
+            document.documentElement.style.setProperty('--belowvid-margin-right', '-' + ytRecommObj / 2 + 'px', 'important');
         }
         pageManager.classList.add(extension_prefix + 'page_manager');
         belowVideo.classList.add(extension_prefix + 'below_video');
@@ -514,9 +427,9 @@ function addElementsToSearchbar() {
         if (buttonContainer) {
             historyBool = findLinkElement('/feed/history', buttonContainer);
             playlistBool = findLinkElement('/feed/playlists', buttonContainer);
-            subscriptionsBool = findLinkElement('/feed/subscriptions',buttonContainer);
+            subscriptionsBool = findLinkElement('/feed/subscriptions', buttonContainer);
         }
-        playlistBool = true
+        playlistBool = true;
         if (playlistBool && subscriptionsBool && historyBool) {
             observer.disconnect();
         }
@@ -532,9 +445,7 @@ function findLinkElement(pathName, buttonContainer) {
     const elements = document.getElementsByTagName('a');
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].pathname === pathName) {
-            let divContainer = buttonContainer.children.namedItem(
-                extension_prefix + 'button_container'
-            );
+            let divContainer = buttonContainer.children.namedItem(extension_prefix + 'button_container');
             if (!divContainer) {
                 divContainer = document.createElement('div');
                 divContainer.style.display = 'flex';
@@ -542,13 +453,9 @@ function findLinkElement(pathName, buttonContainer) {
                 divContainer.setAttribute('id', extension_prefix + 'button_container');
                 buttonContainer.prepend(divContainer);
             }
-            elements[i].getElementsByTagName('yt-icon')[0].style.marginRight =
-                '5px';
-            elements[i].getElementsByTagName('yt-icon')[0].style.marginLeft =
-                '5px';
-            elements[i].getElementsByTagName(
-                'yt-formatted-string'
-            )[0].style.display = 'none';
+            elements[i].getElementsByTagName('yt-icon')[0].style.marginRight = '5px';
+            elements[i].getElementsByTagName('yt-icon')[0].style.marginLeft = '5px';
+            elements[i].getElementsByTagName('yt-formatted-string')[0].style.display = 'none';
             divContainer.prepend(elements[i]);
             return true; // Gefundenes Element zurückgeben
         }
