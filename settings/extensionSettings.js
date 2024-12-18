@@ -6,6 +6,9 @@ window.onload = async function () {
         { key: 'hideYtStartPage' },
         { key: 'hideYtResultPage' },
         { key: 'hideYtWatchPage' },
+        { key: 'showSubscriptionsButton' },
+        { key: 'showPlaylistButton' },
+        { key: 'showHistoryButton' },
     ];
 
     try {
