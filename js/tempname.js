@@ -13,6 +13,13 @@ let hide_result = { key: 'hideYtResultPage', value: true };
 let hide_watch = { key: 'hideYtWatchPage', value: true };
 let config_arr = [hide_start, hide_result, hide_watch];
 
+//needed for adding subscriptions / playlist / history buttons to navbar
+let subscriptionsObj = false;
+let playlistObj = false;
+let historyObj = false;
+let divContainer = false;
+let elementsAdded = false;
+
 /**
  * possible states:
  * 0 = start page
@@ -81,7 +88,6 @@ window.addEventListener('load', () => {
     } else {
         global_state = -1;
     }
-    addElementsToSearchbar();
     document.body.style.display = 'block';
 });
 
@@ -91,6 +97,7 @@ new MutationObserver(() => {
     if (yt_result.test(window.location.href)) {
         removeBloat();
     }
+
     //check for theatermode and rearrange /watch page accordingly
     if (yt_watch.test(window.location.href)) {
         let ytRecommObj = document.getElementById('page-manager').querySelector('#columns').querySelector('#secondary');
@@ -99,6 +106,9 @@ new MutationObserver(() => {
         }
     }
 
+    addButtonsToNavbar();
+
+    //page switch
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
         lastUrl = currentUrl;
@@ -128,6 +138,7 @@ new MutationObserver(() => {
         }
 
         updateVariablesFromCookie();
+        elementsAdded = false;
 
         //enter new state based on new page
         if (yt_start.test(window.location.href)) {
@@ -409,29 +420,73 @@ function getCookieArray() {
     return cookieArray;
 }
 
-function addElementsToSearchbar() {
-    if (!document.querySelector('#avatar-btn')) {
-        //return;
-    }
+//adds subscriptions / playlists / history buttons to navbar
+function addButtonsToNavbar() {
+    if (document.querySelector('#avatar-btn')) {
+        //create the custom div container to hold the buttons
+        if (!divContainer) {
+            divContainer = document.createElement('div');
+            divContainer.style.display = 'flex';
+            divContainer.style.marginRight = '10px';
+            divContainer.setAttribute('id', extension_prefix + 'button_container');
+        }
 
+        if (!elementsAdded) {
+            elementsAdded = true;
+            getButtonsForNavbar();
+        }
+
+        let navButtons;
+
+        try {
+            navButtons = document.getElementById('masthead').children.namedItem('container').children.namedItem('end').children.namedItem('buttons');
+        } catch (error) {
+            //try catch is just to surpress document.getElementById() is null error message
+        }
+
+        if (navButtons && divContainer) {
+            if (!navButtons.contains(divContainer)) {
+                navButtons.prepend(divContainer);
+            }
+        }
+    }
+}
+
+//get the subscription / playlists / history button from DOM to be present in the js script
+function getButtonsForNavbar() {
     const observer = new MutationObserver(() => {
         let buttonContainer = document
             .getElementById('masthead')
             .children.namedItem('container')
             .children.namedItem('end')
             .children.namedItem('buttons');
-        let subscriptionsBool = false;
-        let playlistBool = false;
-        let historyBool = false;
+
+        /**
+         * 
+         * if(playlistObj === true){
+         * playlistObj = false
+         * } 
+         * 
+         * 
+         * 
+         */
+
+        if (playlistObj && subscriptionsObj && historyObj) {
+            observer.disconnect();
+            return;
+        }
 
         if (buttonContainer) {
-            historyBool = findLinkElement('/feed/history', buttonContainer);
-            playlistBool = findLinkElement('/feed/playlists', buttonContainer);
-            subscriptionsBool = findLinkElement('/feed/subscriptions', buttonContainer);
-        }
-        playlistBool = true;
-        if (playlistBool && subscriptionsBool && historyBool) {
-            observer.disconnect();
+            /**
+             * 
+             * if(config == true){
+             * historyObj = findLinkElemen
+             * }else{
+             * historyObj = true}
+             */
+            historyObj = findLinkElement('/feed/history', buttonContainer);
+            playlistObj = findLinkElement('/feed/playlists', buttonContainer);
+            subscriptionsObj = findLinkElement('/feed/subscriptions', buttonContainer);
         }
     });
 
@@ -441,24 +496,18 @@ function addElementsToSearchbar() {
     });
 }
 
-function findLinkElement(pathName, buttonContainer) {
+//filter out element by element pathname and add it to the div container
+function findLinkElement(pathName) {
     const elements = document.getElementsByTagName('a');
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].pathname === pathName) {
-            let divContainer = buttonContainer.children.namedItem(extension_prefix + 'button_container');
-            if (!divContainer) {
-                divContainer = document.createElement('div');
-                divContainer.style.display = 'flex';
-                divContainer.style.marginRight = '10px';
-                divContainer.setAttribute('id', extension_prefix + 'button_container');
-                buttonContainer.prepend(divContainer);
-            }
             elements[i].getElementsByTagName('yt-icon')[0].style.marginRight = '5px';
             elements[i].getElementsByTagName('yt-icon')[0].style.marginLeft = '5px';
             elements[i].getElementsByTagName('yt-formatted-string')[0].style.display = 'none';
+
             divContainer.prepend(elements[i]);
-            return true; // Gefundenes Element zurückgeben
+            return elements[i];
         }
     }
-    return false; // Kein Element gefunden
+    return false;
 }
