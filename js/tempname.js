@@ -117,6 +117,7 @@ new MutationObserver(() => {
     //page switch
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
+        divContainer.style.display = "flex"
         lastUrl = currentUrl;
 
         //leave current state on page switch
@@ -163,6 +164,9 @@ new MutationObserver(() => {
             }
             global_state = 2;
         } else {
+            if(divContainer){
+                divContainer.style.display = "none"
+            }
             global_state = -1;
         }
     }
