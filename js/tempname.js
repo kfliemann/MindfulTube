@@ -37,7 +37,6 @@ let start_manip_array = ['logo', 'logo-icon', 'center', 'end'];
 let result_hide_array = ['guide-button', 'items', 'guide-content', 'country-code'];
 let watch_hide_array = ['sections', 'guide-button', 'items', 'guide-content', 'country-code'];
 
-
 //listens for messages from background.js
 //sends all cookies to background.js / sets new cookie value from background.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -101,7 +100,6 @@ function initNavbarButtons() {
     addButtonsToDivContainer();
 }
 
-
 //initialize on earliest page load point
 document.addEventListener('DOMContentLoaded', () => {
     initExtensionCookies();
@@ -141,9 +139,13 @@ new MutationObserver(() => {
 
     //check for theatermode and rearrange /watch page accordingly
     if (yt_watch.test(window.location.href)) {
-        let ytRecommObj = document.getElementById('page-manager').querySelector('#columns').querySelector('#secondary');
-        if (ytRecommObj) {
-            checkforTheaterMode(ytRecommObj.offsetWidth);
+        try {
+            let ytRecommObj = document.getElementById('page-manager').querySelector('#columns').querySelector('#secondary');
+            if (ytRecommObj) {
+                checkforTheaterMode(ytRecommObj.offsetWidth);
+            }
+        } catch (error) {
+            //try catch is just to surpress document.getElementById() is null error message
         }
     }
 
@@ -445,8 +447,8 @@ function checkforTheaterMode(ytRecommObj) {
             document.documentElement.style.setProperty('--belowvid-margin-right', '0px', 'important');
             document.body.classList.add(extension_prefix + 'body');
         } else {
-            document.documentElement.style.setProperty('--dynamic-margin-left', '0px', 'important');
-            document.documentElement.style.setProperty('--dynamic-margin-right', '0px', 'important');
+            document.documentElement.style.setProperty('--manager-margin-left', '0px', 'important');
+            document.documentElement.style.setProperty('--manager-margin-right', '0px', 'important');
             document.documentElement.style.setProperty('--belowvid-margin-left', ytRecommObj / 2 + 'px', 'important');
             document.documentElement.style.setProperty('--belowvid-margin-right', '-' + ytRecommObj / 2 + 'px', 'important');
         }
