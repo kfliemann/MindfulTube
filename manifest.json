@@ -16,7 +16,7 @@
         {
             "matches": ["*://*.youtube.com/*", "*://*.youtube.de/*"],
             "css": ["./styles/styles.css"],
-            "js": ["./js/tempname.js"],
+            "js": ["./js/tempname.js", "./js/buttonFactory.js"],
             "run_at": "document_start"
         }
     ],

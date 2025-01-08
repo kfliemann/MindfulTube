@@ -13,9 +13,8 @@ let hide_result = { key: 'hideYtResultPage', value: true };
 let hide_watch = { key: 'hideYtWatchPage', value: true };
 let show_subscriptions = { key: 'showSubscriptionsButton', value: true };
 let show_playlist = { key: 'showPlaylistButton', value: true };
-let show_history = { key: 'showHistoryButton', value: true }; 
+let show_history = { key: 'showHistoryButton', value: true };
 let config_arr = [hide_start, hide_result, hide_watch, show_subscriptions, show_playlist, show_history];
-
 
 //needed for adding subscriptions / playlist / history buttons to navbar
 let subscriptionsObj = false;
@@ -48,8 +47,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             break;
         case 'setCookie':
             document.cookie = message.data.key + '=' + message.data.value;
-            updateVariablesFromCookieAsync()
-            addButtonsToDivContainer()
+            updateVariablesFromCookieAsync();
+            addButtonsToDivContainer();
             break;
     }
 });
@@ -71,6 +70,7 @@ function initExtensionCookies() {
 //initialize on earliest page load point
 document.addEventListener('DOMContentLoaded', () => {
     initExtensionCookies();
+    initNavbarButtons();
 });
 
 //display body, when everything initialized
@@ -117,7 +117,7 @@ new MutationObserver(() => {
     //page switch
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
-        divContainer.style.display = "flex"
+        divContainer.style.display = 'flex';
         lastUrl = currentUrl;
 
         //leave current state on page switch
@@ -164,8 +164,8 @@ new MutationObserver(() => {
             }
             global_state = 2;
         } else {
-            if(divContainer){
-                divContainer.style.display = "none"
+            if (divContainer) {
+                divContainer.style.display = 'none';
             }
             global_state = -1;
         }
@@ -354,7 +354,7 @@ function updateVariablesFromCookie() {
 function updateVariablesFromCookieAsync() {
     let cookieArray = getCookieArray();
     config_arr.forEach((element) => {
-        if(element.key !== "hideYtStartPage" && element.key !== "hideYtResultPage" && element.key !== "hideYtWatchPage"){
+        if (element.key !== 'hideYtStartPage' && element.key !== 'hideYtResultPage' && element.key !== 'hideYtWatchPage') {
             const cookieValue = cookieArray.find((item) => item.key === element.key)?.value;
             element.value = JSON.parse(cookieValue);
         }
@@ -441,8 +441,42 @@ function getCookieArray() {
     return cookieArray;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //adds subscriptions / playlists / history buttons to navbar
 function addDivContainerToNavbar() {
+    return;
     //add buttons if someone is logged in
     if (document.querySelector('#avatar-btn')) {
         //create the custom div container to hold the buttons
@@ -466,15 +500,15 @@ function addDivContainerToNavbar() {
             //try catch is just to surpress document.getElementById() is null error message
         }
 
-        addButtonsToDivContainer()
+        addButtonsToDivContainer();
 
         if (navButtons && divContainer) {
             if (!navButtons.contains(divContainer)) {
                 navButtons.prepend(divContainer);
             }
         }
-    //remove buttons if someone logged out
-    }else{
+        //remove buttons if someone logged out
+    } else {
         let navButtons;
 
         try {
@@ -491,80 +525,80 @@ function addDivContainerToNavbar() {
     }
 }
 
-//get the subscription / playlists / history button from DOM to be present in the js script
-function getButtonsForDivContainer() {
-    const observer = new MutationObserver(() => {
-        let buttonContainer = document
-            .getElementById('masthead')
-            .children.namedItem('container')
-            .children.namedItem('end')
-            .children.namedItem('buttons');
-
-        if (playlistObj && subscriptionsObj && historyObj) {
-            observer.disconnect();
-            return;
-        }
-
-        if (buttonContainer) {
-            historyObj = findLinkElement('/feed/history', buttonContainer);
-            playlistObj = findLinkElement('/feed/playlists', buttonContainer);
-            subscriptionsObj = findLinkElement('/feed/subscriptions', buttonContainer);
-        }
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
-}
-
-//filter out element by element pathname and add it to the div container
-function findLinkElement(pathName) {
-    const elements = document.getElementsByTagName('a');
-    for (let i = 0; i < elements.length; i++) {
-        if (elements[i].pathname === pathName) {
-            elements[i].getElementsByTagName('yt-icon')[0].style.marginRight = '5px';
-            elements[i].getElementsByTagName('yt-icon')[0].style.marginLeft = '5px';
-            elements[i].getElementsByTagName('yt-formatted-string')[0].style.display = 'none';
-            return elements[i];
-        }
-    }
-    return false;
-}
-
 //order matters; from left to right: subscribtions, playlist, history
-function addButtonsToDivContainer(){
-    if(show_subscriptions.value){
-        if(divContainer && subscriptionsObj && !divContainer.contains(subscriptionsObj)){
+function addButtonsToDivContainer() {
+    if (show_subscriptions.value) {
+        if (divContainer && subscriptionsObj && !divContainer.contains(subscriptionsObj)) {
             divContainer.prepend(subscriptionsObj);
         }
-    }else{
-        if(divContainer && subscriptionsObj && divContainer.contains(subscriptionsObj)){
+    } else {
+        if (divContainer && subscriptionsObj && divContainer.contains(subscriptionsObj)) {
             divContainer.removeChild(subscriptionsObj);
         }
     }
 
-    if(show_history.value){
-        if(divContainer && historyObj && !divContainer.contains(historyObj)){
+    if (show_history.value) {
+        if (divContainer && historyObj && !divContainer.contains(historyObj)) {
             divContainer.append(historyObj);
         }
-    }else{
-        if(divContainer && historyObj && divContainer.contains(historyObj)){
+    } else {
+        if (divContainer && historyObj && divContainer.contains(historyObj)) {
             divContainer.removeChild(historyObj);
         }
     }
 
-    if(show_playlist.value){
-        if(divContainer && playlistObj && !divContainer.contains(playlistObj)){
-            if(divContainer.contains(historyObj)){
+    if (show_playlist.value) {
+        if (divContainer && playlistObj && !divContainer.contains(playlistObj)) {
+            if (divContainer.contains(historyObj)) {
                 divContainer.insertBefore(playlistObj, historyObj);
-            }else{
-                divContainer.append(playlistObj);    
+            } else {
+                divContainer.append(playlistObj);
             }
         }
-    }else{
-        if(divContainer && playlistObj && divContainer.contains(playlistObj)){
+    } else {
+        if (divContainer && playlistObj && divContainer.contains(playlistObj)) {
             divContainer.removeChild(playlistObj);
+        }
+    }
+}
+
+function initNavbarButtons() {
+    let subscribtionsButtonDom = document.createElement('div');
+    subscribtionsButtonDom.innerHTML = buttonFactory.subscriptionsButton.trim();
+    subscriptionsObj = subscribtionsButtonDom;
+
+    let playlistButtonDom = document.createElement('div');
+    playlistButtonDom.innerHTML = buttonFactory.playlistButton.trim();
+    playlistObj = playlistButtonDom;
+
+    let historyButtonDom = document.createElement('div');
+    historyButtonDom.innerHTML = buttonFactory.historyButton.trim();
+    historyObj = historyButtonDom;
+}
+//adds subscriptions / playlists / history buttons to navbar
+function addButtonsToNavbar() {
+    if (document.querySelector('#avatar-btn')) {
+        //create the custom div container to hold the buttons
+        if (!divContainer) {
+            divContainer = document.createElement('div');
+            divContainer.style.display = 'flex';
+            divContainer.style.marginRight = '10px';
+            divContainer.setAttribute('id', extension_prefix + 'button_container');
+        }
+        if (!elementsAdded) {
+            elementsAdded = true;
+            getButtonsForNavbar();
+        }
+        let navButtons;
+        try {
+            navButtons = document.getElementById('masthead').children.namedItem('container').children.namedItem('end').children.namedItem('buttons');
+        } catch (error) {
+            //try catch is just to surpress document.getElementById() is null error message
+        }
+        if (navButtons && divContainer) {
+            if (!navButtons.contains(divContainer)) {
+                navButtons.prepend(divContainer);
+            }
         }
     }
 }
