@@ -146,7 +146,6 @@ new MutationObserver(() => {
     //needs to be called on every observer call in case new shorts / ads get loaded on resultpage scroll
     if(hide_adsshorts.value){
         if (yt_result.test(window.location.href)) {
-            console.log("hier komm ich rein?")
             removeBloat();
         }
     }
