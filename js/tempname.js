@@ -37,6 +37,7 @@ let start_manip_array = ['logo', 'logo-icon', 'center', 'end'];
 let result_hide_array = ['guide-button', 'items', 'guide-content', 'country-code'];
 let watch_hide_array = ['sections', 'guide-button', 'items', 'guide-content', 'country-code'];
 
+
 //listens for messages from background.js
 //sends all cookies to background.js / sets new cookie value from background.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -164,7 +165,6 @@ new MutationObserver(() => {
     //page switch
     const currentUrl = location.pathname;
     if (currentUrl !== lastUrl) {
-        divContainer.style.display = 'flex';
         lastUrl = currentUrl;
 
         //leave current state on page switch
@@ -417,10 +417,10 @@ function removeBloat() {
         }
     }
     //getting rid of ads in result page
-    let test = document.getElementsByTagName('ytd-ad-slot-renderer');
-    if (test.length > 0) {
-        for (let short of test) {
-            short.remove();
+    let adsDOMObj = document.getElementsByTagName('ytd-ad-slot-renderer');
+    if (adsDOMObj.length > 0) {
+        for (let ad of adsDOMObj) {
+            ad.remove();
         }
     }
 }
