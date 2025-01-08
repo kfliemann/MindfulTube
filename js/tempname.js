@@ -21,7 +21,6 @@ let subscriptionsObj = false;
 let playlistObj = false;
 let historyObj = false;
 let divContainer = false;
-let elementsAdded = false;
 
 /**
  * possible states:
@@ -66,6 +65,41 @@ function initExtensionCookies() {
         }
     });
 }
+
+//hardcode navbar buttons because dynamically getting buttons from site was a bad way (too many problems)
+function initNavbarButtons() {
+    subscriptionsObj = document.createElement('a');
+    subscriptionsObj.classList.add('yt-spec-icon-badge-shape');
+    subscriptionsObj.href = '/feed/subscriptions';
+    subscriptionsObj.style.margin = '0px 10px';
+    let subscriptionsDivObj = document.createElement('div');
+    subscriptionsDivObj.innerHTML = buttonFactory.subscriptionsButton.trim();
+    subscriptionsObj.prepend(subscriptionsDivObj);
+
+    playlistObj = document.createElement('a');
+    playlistObj.classList.add('yt-spec-icon-badge-shape');
+    playlistObj.href = '/feed/playlists';
+    playlistObj.style.margin = '0px 10px';
+    let playlistDivObj = document.createElement('div');
+    playlistDivObj.innerHTML = buttonFactory.playlistButton.trim();
+    playlistObj.prepend(playlistDivObj);
+
+    historyObj = document.createElement('a');
+    historyObj.classList.add('yt-spec-icon-badge-shape');
+    historyObj.href = '/feed/history';
+    historyObj.style.margin = '0px 10px';
+    let historyDivObj = document.createElement('div');
+    historyDivObj.innerHTML = buttonFactory.historyButton.trim();
+    historyObj.prepend(historyDivObj);
+
+    divContainer = document.createElement('div');
+    divContainer.style.marginRight = '10px';
+    divContainer.style.display = 'flex';
+    divContainer.setAttribute('id', extension_prefix + 'button_container');
+
+    addButtonsToDivContainer();
+}
+
 
 //initialize on earliest page load point
 document.addEventListener('DOMContentLoaded', () => {
@@ -112,7 +146,20 @@ new MutationObserver(() => {
         }
     }
 
-    addDivContainerToNavbar();
+    //add divContainer to navbar if person is logged in to give access to subscription / playlist / history buttons
+    let navButtons;
+    try {
+        navButtons = document.getElementById('masthead').children.namedItem('container').children.namedItem('end').children.namedItem('buttons');
+
+        let avatarSelector = document.querySelector('#avatar-btn');
+        if (navButtons && avatarSelector && global_state !== -1) {
+            if (!navButtons.contains(divContainer)) {
+                navButtons.prepend(divContainer);
+            }
+        }
+    } catch (error) {
+        //try catch is just to surpress document.getElementById() is null error message
+    }
 
     //page switch
     const currentUrl = location.pathname;
@@ -145,7 +192,6 @@ new MutationObserver(() => {
         }
 
         updateVariablesFromCookie();
-        elementsAdded = false;
 
         //enter new state based on new page
         if (yt_start.test(window.location.href)) {
@@ -164,8 +210,8 @@ new MutationObserver(() => {
             }
             global_state = 2;
         } else {
-            if (divContainer) {
-                divContainer.style.display = 'none';
+            if (navButtons.contains(divContainer)) {
+                navButtons.removeChild(divContainer);
             }
             global_state = -1;
         }
@@ -441,91 +487,7 @@ function getCookieArray() {
     return cookieArray;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//adds subscriptions / playlists / history buttons to navbar
-function addDivContainerToNavbar() {
-    return;
-    //add buttons if someone is logged in
-    if (document.querySelector('#avatar-btn')) {
-        //create the custom div container to hold the buttons
-        if (!divContainer) {
-            divContainer = document.createElement('div');
-            divContainer.style.display = 'flex';
-            divContainer.style.marginRight = '10px';
-            divContainer.setAttribute('id', extension_prefix + 'button_container');
-        }
-
-        if (!elementsAdded) {
-            elementsAdded = true;
-            getButtonsForDivContainer();
-        }
-
-        let navButtons;
-
-        try {
-            navButtons = document.getElementById('masthead').children.namedItem('container').children.namedItem('end').children.namedItem('buttons');
-        } catch (error) {
-            //try catch is just to surpress document.getElementById() is null error message
-        }
-
-        addButtonsToDivContainer();
-
-        if (navButtons && divContainer) {
-            if (!navButtons.contains(divContainer)) {
-                navButtons.prepend(divContainer);
-            }
-        }
-        //remove buttons if someone logged out
-    } else {
-        let navButtons;
-
-        try {
-            navButtons = document.getElementById('masthead').children.namedItem('container').children.namedItem('end').children.namedItem('buttons');
-        } catch (error) {
-            //try catch is just to surpress document.getElementById() is null error message
-        }
-
-        if (navButtons && divContainer) {
-            if (navButtons.contains(divContainer)) {
-                navButtons.removeChild(divContainer);
-            }
-        }
-    }
-}
-
-//order matters; from left to right: subscribtions, playlist, history
+//order matters; from left to right: subscriptions, playlist, history
 function addButtonsToDivContainer() {
     if (show_subscriptions.value) {
         if (divContainer && subscriptionsObj && !divContainer.contains(subscriptionsObj)) {
@@ -558,47 +520,6 @@ function addButtonsToDivContainer() {
     } else {
         if (divContainer && playlistObj && divContainer.contains(playlistObj)) {
             divContainer.removeChild(playlistObj);
-        }
-    }
-}
-
-function initNavbarButtons() {
-    let subscribtionsButtonDom = document.createElement('div');
-    subscribtionsButtonDom.innerHTML = buttonFactory.subscriptionsButton.trim();
-    subscriptionsObj = subscribtionsButtonDom;
-
-    let playlistButtonDom = document.createElement('div');
-    playlistButtonDom.innerHTML = buttonFactory.playlistButton.trim();
-    playlistObj = playlistButtonDom;
-
-    let historyButtonDom = document.createElement('div');
-    historyButtonDom.innerHTML = buttonFactory.historyButton.trim();
-    historyObj = historyButtonDom;
-}
-//adds subscriptions / playlists / history buttons to navbar
-function addButtonsToNavbar() {
-    if (document.querySelector('#avatar-btn')) {
-        //create the custom div container to hold the buttons
-        if (!divContainer) {
-            divContainer = document.createElement('div');
-            divContainer.style.display = 'flex';
-            divContainer.style.marginRight = '10px';
-            divContainer.setAttribute('id', extension_prefix + 'button_container');
-        }
-        if (!elementsAdded) {
-            elementsAdded = true;
-            getButtonsForNavbar();
-        }
-        let navButtons;
-        try {
-            navButtons = document.getElementById('masthead').children.namedItem('container').children.namedItem('end').children.namedItem('buttons');
-        } catch (error) {
-            //try catch is just to surpress document.getElementById() is null error message
-        }
-        if (navButtons && divContainer) {
-            if (!navButtons.contains(divContainer)) {
-                navButtons.prepend(divContainer);
-            }
         }
     }
 }
