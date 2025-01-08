@@ -6,15 +6,19 @@ let yt_start_theme = new RegExp('\\?themeRefresh=1');
 let yt_start_lang = new RegExp('youtube.[a-zA-Z]{1,4}(\\/)??.*');
 let yt_result = new RegExp('youtube.[a-zA-Z]{1,4}\\/results.*');
 let yt_watch = new RegExp('youtube.[a-zA-Z]{1,4}\\/watch.*');
+let yt_subs = new RegExp('youtube.[a-zA-Z]{1,4}\\/feed/subscriptions');
+let yt_playlists = new RegExp('youtube.[a-zA-Z]{1,4}\\/feed/playlists');
+let yt_history = new RegExp('youtube.[a-zA-Z]{1,4}\\/feed/history');
 
 //presets the extension configs
 let hide_start = { key: 'hideYtStartPage', value: true };
 let hide_result = { key: 'hideYtResultPage', value: true };
 let hide_watch = { key: 'hideYtWatchPage', value: true };
+let hide_adsshorts = { key: 'hideAdsShorts', value: true };
 let show_subscriptions = { key: 'showSubscriptionsButton', value: true };
 let show_playlist = { key: 'showPlaylistButton', value: true };
 let show_history = { key: 'showHistoryButton', value: true };
-let config_arr = [hide_start, hide_result, hide_watch, show_subscriptions, show_playlist, show_history];
+let config_arr = [hide_start, hide_result, hide_watch, hide_adsshorts, show_subscriptions, show_playlist, show_history];
 
 //needed for adding subscriptions / playlist / history buttons to navbar
 let subscriptionsObj = false;
@@ -27,6 +31,7 @@ let divContainer = false;
  * 0 = start page
  * 1 = (search)result page
  * 2 = watch page
+ * 3 = subscriptions / playlists / history
  * -1 = unintended error state, e.g. a subsite, which was not meant to be visited. leave error state pages untouched.
  */
 let global_state = -1;
@@ -36,6 +41,7 @@ let start_hide_array = ['page-manager', 'guide-button', 'items', 'guide-content'
 let start_manip_array = ['logo', 'logo-icon', 'center', 'end'];
 let result_hide_array = ['guide-button', 'items', 'guide-content', 'country-code'];
 let watch_hide_array = ['sections', 'guide-button', 'items', 'guide-content', 'country-code'];
+let sub_playlist_history_array = ['guide-button', 'items'];
 
 //listens for messages from background.js
 //sends all cookies to background.js / sets new cookie value from background.js
@@ -108,7 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //display body, when everything initialized
 window.addEventListener('load', () => {
-    removeBloat();
+    if(hide_adsshorts.value){
+        removeBloat();
+    }
     if (yt_start.test(window.location.href) || yt_start_theme.test(window.location.search)) {
         if (hide_start.value) {
             enter_start_state();
@@ -124,6 +132,9 @@ window.addEventListener('load', () => {
             enter_watch_state();
         }
         global_state = 2;
+    } else if (yt_subs.test(window.location.href) || yt_history.test(window.location.href) || yt_playlists.test(window.location.href)) {
+        enter_sub_playlist_history_state();
+        global_state = 3;
     } else {
         global_state = -1;
     }
@@ -133,8 +144,11 @@ window.addEventListener('load', () => {
 //site observer to look out for page changes
 new MutationObserver(() => {
     //needs to be called on every observer call in case new shorts / ads get loaded on resultpage scroll
-    if (yt_result.test(window.location.href)) {
-        removeBloat();
+    if(hide_adsshorts.value){
+        if (yt_result.test(window.location.href)) {
+            console.log("hier komm ich rein?")
+            removeBloat();
+        }
     }
 
     //check for theatermode and rearrange /watch page accordingly
@@ -186,6 +200,10 @@ new MutationObserver(() => {
                     leave_watch_state();
                 }
                 break;
+            case 3:
+                if (hide_watch.value) {
+                    leave_sub_playlist_history_state();
+                }
             default:
                 //leave_start_state();
                 //leave_result_state();
@@ -211,6 +229,9 @@ new MutationObserver(() => {
                 enter_watch_state();
             }
             global_state = 2;
+        } else if (yt_subs.test(window.location.href) || yt_history.test(window.location.href) || yt_playlists.test(window.location.href)) {
+            enter_sub_playlist_history_state();
+            global_state = 3;
         } else {
             if (navButtons.contains(divContainer)) {
                 navButtons.removeChild(divContainer);
@@ -249,13 +270,19 @@ function leave_start_state() {
 //all changes made to result page
 function enter_result_state() {
     injectCSS('./styles/resultpage.css', 'resultpage');
+
+    //hide section
     toggleElements(result_hide_array, 'hide');
+    document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.add(extension_prefix + 'dnone');
 }
 
 //undo all changes made to result page
 function leave_result_state() {
     removeCSS();
+
+    //hide section
     toggleElements(result_hide_array, 'show');
+    document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.remove(extension_prefix + 'dnone');
 }
 
 //all changes made to watch page
@@ -303,6 +330,22 @@ function leave_watch_state() {
     pageManager.classList.remove(extension_prefix + 'page_manager');
     pageManager.querySelector('#below').classList.remove(extension_prefix + 'below_video');
     document.body.classList.add(extension_prefix + 'body');
+}
+
+//remove left navigation from /feed/subscriptions /-history /-playlists
+function enter_sub_playlist_history_state() {
+    injectCSS('./styles/subhistoryplaylist.css', 'subhistoryplaylist');
+
+    //hide section
+    toggleElements(sub_playlist_history_array, 'hide');
+    document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.add(extension_prefix + 'dnone');
+}
+
+//undo changes to /feed/subscriptions /-history /-playlists
+function leave_sub_playlist_history_state() {
+    removeCSS();
+    toggleElements(sub_playlist_history_array, 'show');
+    document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.remove(extension_prefix + 'dnone');
 }
 
 //inject custom css file

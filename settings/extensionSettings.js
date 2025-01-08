@@ -6,6 +6,7 @@ window.onload = async function () {
         { key: 'hideYtStartPage' },
         { key: 'hideYtResultPage' },
         { key: 'hideYtWatchPage' },
+        { key: 'hideAdsShorts' },
         { key: 'showSubscriptionsButton' },
         { key: 'showPlaylistButton' },
         { key: 'showHistoryButton' },
@@ -18,9 +19,7 @@ window.onload = async function () {
         checkbox_arr.forEach(({ key }) => {
             const checkbox_obj = document.getElementById(key);
             if (checkbox_obj) {
-                const checkbox_value = cookieArray.find(
-                    (item) => item.key === key
-                )?.value;
+                const checkbox_value = cookieArray.find((item) => item.key === key)?.value;
                 checkbox_obj.checked = JSON.parse(checkbox_value);
 
                 checkbox_obj.addEventListener('input', (e) => {
@@ -30,12 +29,11 @@ window.onload = async function () {
         });
 
         let manifestData = chrome.runtime.getManifest();
-        document.getElementById('ext-version').textContent =
-            'v' + manifestData.version;
+        document.getElementById('ext-version').textContent = 'v' + manifestData.version;
     } catch (error) {
         //TODO: display error message in extension window (cookies not found or similar)
-        document.getElementById("settings").style.display = "none"
-        document.getElementById("errorMessage").style.display = "block"
+        document.getElementById('settings').style.display = 'none';
+        document.getElementById('errorMessage').style.display = 'block';
     }
 };
 
