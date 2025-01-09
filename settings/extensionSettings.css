@@ -1,92 +1,177 @@
 body {
+    font-family: 'M PLUS 2', sans-serif;
+    background-color: #aad4ff;
+    color: #343a40;
+    margin: 0;
+    padding: 20px;
+}
 
+#errorMessage {
+    display: none;
+    font-size: 20px;
+    padding-top: 1rem;
 }
 
 .bottom {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-top: 5px;
-    height: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    padding: 2px 20px 2px 20px;
+    background: white;
+    align-items: center;
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 1px solid #323232;
+    box-shadow: 4px 4px #323232;
 }
-.right {
-    text-align: right;
+
+#ghlink{
+    padding-top: 5px;
+}
+
+#leftside_container{
+    align-items: center;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    height: 100%;
+}
+
+#settings {
+    border-radius: 10px;
+    background-color: #ffffff;
+    padding: 10px 20px 0 20px;
+    border: 1px solid #323232;
+    box-shadow: 4px 4px #323232;
 }
 
 .setting {
-    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-#hideYTShortsVideosInput:checked + span + .rearrangeVideosContent {
-    display: inline;
-    width: 100%;
-    opacity: 1;
-    pointer-events: auto;
-    cursor: auto;
-    visibility: visible;
+.switchLabel {
+    margin-right: 5rem;
 }
 
-.more-dropdown {
-    max-height: 210px; 
-    overflow-y: scroll;
-    overflow-x: hidden;
+#settings_text {
+    font-size: 20px;
+    padding-bottom: 5px;
+    background: white;
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 1px solid #323232;
+    box-shadow: 4px 4px #323232;
 }
 
-.tooltip .tooltiptext {
-    width: 120px;
-    left: 0; 
-    visibility: hidden;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 5px;
+/*config slider*/
+.switch {
+    font-size: 13px;
+    position: relative;
+    display: inline-block;
+    width: 3.5em;
+    height: 2em;
 }
 
-.tooltip {
-    border-bottom: 1px dotted black;
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
-.tooltiptext {
-    display: block;
+.slider {
     position: absolute;
-    z-index: 9999;
-    bottom: 100%;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #adb5bd;
+    transition: 0.4s;
+    border-radius: 30px;
 }
 
-.tooltip:hover > .tooltiptext {
-    transition-delay: 700ms;
-    visibility: visible;
+.slider:before {
+    position: absolute;
+    content: '';
+    height: 1.4em;
+    width: 1.4em;
+    border-radius: 20px;
+    left: 0.3em;
+    bottom: 0.3em;
+    background-color: white;
+    transition: 0.4s;
 }
 
-details {
-	width: 100%;
-	background: #ffffff;
-	border-radius: 8px;
-	position: relative;
+input:checked + .slider {
+    background-color: #007bff;
 }
 
-.summary-title.details {
-	user-select: none;
+input:checked + .slider:before {
+    transform: translateX(1.5em);
+    background-color: white;
+}
+/*config slider*/
+
+/*light mode dark mode button*/
+.theme {
+    --bg-color: #fff;
+    --main-color: #323232;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    background-color: var(--bg-color);
+    border-radius: 100%;
+    border: 1px solid var(--main-color);
+    box-shadow: 4px 4px var(--main-color);
 }
 
-summary:hover, .details {
-	cursor: pointer;
+.input {
+    cursor: pointer;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    opacity: 0;
 }
 
-.summary-content.details {
-	border-top: 1px solid #e2e8f0;
-	cursor: default;
-	line-height: 1.5;
+.icon {
+    position: absolute;
+    top: calc(50% -13px);
+    left: calc(50% -13px);
+    width: 15px;
+    height: 15px;
 }
 
-.summary-chevron-up,
-.summary-chevron-down {
-	pointer-events: none;
-	position: absolute;
-	top: 0.75em;
-	background: #ffffff;
+.icon.icon-moon {
+    fill: var(--main-color);
 }
 
-#errorMessage{
-    display:none;
+.icon.icon-sun {
+    stroke: var(--main-color);
+    display: none;
 }
+
+.input:checked ~ .icon.icon-sun {
+    display: block;
+}
+
+.input:checked ~ .icon.icon-moon {
+    display: none;
+}
+
+.theme:active {
+    box-shadow: 0px 0px var(--main-color);
+    transform: translate(3px, 3px);
+}
+/*light mode dark mode button*/

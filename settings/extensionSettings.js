@@ -12,6 +12,9 @@ window.onload = async function () {
         { key: 'showHistoryButton' },
     ];
 
+    let manifestData = chrome.runtime.getManifest();
+    document.getElementById('ext-version').textContent = 'Version ' + manifestData.version;
+
     try {
         let cookieArray = await getCookiesFromContent();
         cookieArray = cookieArray.data;
@@ -27,9 +30,6 @@ window.onload = async function () {
                 });
             }
         });
-
-        let manifestData = chrome.runtime.getManifest();
-        document.getElementById('ext-version').textContent = 'v' + manifestData.version;
     } catch (error) {
         //TODO: display error message in extension window (cookies not found or similar)
         document.getElementById('settings').style.display = 'none';
