@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //display body, when everything initialized
 window.addEventListener('load', () => {
-    if(hide_adsshorts.value){
+    if (hide_adsshorts.value) {
         removeBloat();
     }
     if (yt_start.test(window.location.href) || yt_start_theme.test(window.location.search)) {
@@ -144,7 +144,7 @@ window.addEventListener('load', () => {
 //site observer to look out for page changes
 new MutationObserver(() => {
     //needs to be called on every observer call in case new shorts / ads get loaded on resultpage scroll
-    if(hide_adsshorts.value){
+    if (hide_adsshorts.value) {
         if (yt_result.test(window.location.href)) {
             removeBloat();
         }
@@ -201,7 +201,7 @@ new MutationObserver(() => {
                 break;
             case 3:
                 if (hide_watch.value) {
-                    leave_sub_playlist_history_state();
+                    //leave_sub_playlist_history_state();
                 }
             default:
                 //leave_start_state();
@@ -304,10 +304,23 @@ function enter_watch_state() {
             //remove comments
             asyncObj.querySelector('ytd-comments').classList.add(extension_prefix + 'dnone');
 
+            return waitForElement('#secondary-inner', asyncObj);
+        })
+        .then((asyncObj) => {
+            //wait for #secondary-inner to be loaded, which contains recommended videos and playlist DOM element
+
+            //if user is watching a playlist, append the playlist to video description
+            try {
+                let playlistObj = asyncObj.children.namedItem('playlist');
+                document.getElementById('below').append(playlistObj);
+            } catch (error) {
+                //suppress error messages
+            }
+
             //remove recommended videos
             //in order to not mess up the video controls (moving around parts of the site messes with the position of video controls for some reason)
             //set the innerHTML to empty string instead of display:none and offset by half the size to each side
-            let ytRecomm = asyncObj.querySelector('#secondary');
+            let ytRecomm = asyncObj.querySelector('#related');
             ytRecomm.innerHTML = '';
             checkforTheaterMode(ytRecomm.offsetWidth);
             document.body.style.overflowX = 'hidden';
