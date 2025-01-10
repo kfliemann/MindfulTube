@@ -9,7 +9,8 @@ body {
 #errorMessage {
     display: none;
     font-size: 20px;
-    padding-top: 1rem;
+    margin-top: 1rem;
+    padding: 10px 10px;
 }
 
 .bottom {
@@ -18,19 +19,22 @@ body {
     justify-content: space-between;
     margin-top: 1.5rem;
     padding: 2px 20px 2px 20px;
-    background: white;
     align-items: center;
-    border-radius: 10px;
+}
+
+.border_box {
+    background: white;
     background-color: #ffffff;
+    border-radius: 10px;
     border: 1px solid #323232;
     box-shadow: 4px 4px #323232;
 }
 
-#ghlink{
+#ghlink {
     padding-top: 5px;
 }
 
-#leftside_container{
+#leftside_container {
     align-items: center;
 }
 
@@ -44,11 +48,7 @@ body {
 }
 
 #settings {
-    border-radius: 10px;
-    background-color: #ffffff;
     padding: 10px 20px 0 20px;
-    border: 1px solid #323232;
-    box-shadow: 4px 4px #323232;
 }
 
 .setting {
@@ -64,11 +64,6 @@ body {
 #settings_text {
     font-size: 20px;
     padding-bottom: 5px;
-    background: white;
-    border-radius: 10px;
-    background-color: #ffffff;
-    border: 1px solid #323232;
-    box-shadow: 4px 4px #323232;
 }
 
 /*config slider*/
@@ -96,6 +91,8 @@ body {
     background-color: #adb5bd;
     transition: 0.4s;
     border-radius: 30px;
+    border: 1px solid #323232;
+    box-shadow: 4px 4px #323232;
 }
 
 .slider:before {
