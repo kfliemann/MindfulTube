@@ -6,36 +6,12 @@ body {
     padding: 20px;
 }
 
-#errorMessage {
-    display: none;
-    font-size: 20px;
-    margin-top: 1rem;
-    padding: 10px 10px;
-}
-
-.bottom {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 1.5rem;
-    padding: 2px 20px 2px 20px;
-    align-items: center;
-}
-
 .border_box {
     background: white;
     background-color: #ffffff;
     border-radius: 10px;
     border: 1px solid #323232;
     box-shadow: 4px 4px #323232;
-}
-
-#ghlink {
-    padding-top: 5px;
-}
-
-#leftside_container {
-    align-items: center;
 }
 
 .header {
@@ -57,13 +33,34 @@ body {
     align-items: center;
 }
 
-.switchLabel {
-    margin-right: 5rem;
-}
-
 #settings_text {
     font-size: 20px;
     padding-bottom: 5px;
+}
+
+.switchLabel {
+    margin-right: 3.5rem;
+}
+
+#errorMessage {
+    display: none;
+    font-size: 20px;
+    margin-top: 1rem;
+    padding: 10px 10px;
+    max-width: 420px;
+}
+
+.bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    padding: 2px 20px 2px 20px;
+    align-items: center;
+}
+
+#ghlink {
+    padding-top: 5px;
 }
 
 /*config slider*/
