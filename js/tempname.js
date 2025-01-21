@@ -41,7 +41,8 @@ let start_hide_array = ['page-manager', 'guide-button', 'items', 'guide-content'
 let start_manip_array = ['logo', 'logo-icon', 'center', 'end'];
 let result_hide_array = ['guide-button', 'items', 'guide-content', 'country-code'];
 let watch_hide_array = ['sections', 'guide-button', 'items', 'guide-content', 'country-code'];
-let sub_playlist_history_array = ['guide-button', 'items'];
+let sub_playlist_history_array = ['sections', 'guide', 'guide-wrapper', 'guide-button', 'items'];
+
 
 //listens for messages from background.js
 //sends all cookies to background.js / sets new cookie value from background.js
@@ -251,6 +252,9 @@ function enter_start_state() {
     //manipulate section
     manipulateElements(start_manip_array, 'add');
     document.getElementById('masthead').children.namedItem('container').classList.add('custom_searchbar');
+    waitForElement('#page-manager', document.getElementById('page-manager')).then((asyncObj) => {
+        asyncObj.innerHTML = '';
+    });
 }
 
 //undo all changes made to start page
@@ -351,6 +355,10 @@ function enter_sub_playlist_history_state() {
     //hide section
     toggleElements(sub_playlist_history_array, 'hide');
     document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.add(extension_prefix + 'dnone');
+    document.getElementById('guide-wrapper').innerHTML = ""
+
+    //manip section
+    document.getElementById("page-manager").style.marginLeft = "0";
 }
 
 //undo changes to /feed/subscriptions /-history /-playlists
