@@ -43,7 +43,6 @@ let result_hide_array = ['guide-button', 'items', 'guide-content', 'country-code
 let watch_hide_array = ['sections', 'guide-button', 'items', 'guide-content', 'country-code'];
 let sub_playlist_history_array = ['sections', 'guide', 'guide-wrapper', 'guide-button', 'items'];
 
-
 //listens for messages from background.js
 //sends all cookies to background.js / sets new cookie value from background.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -355,10 +354,10 @@ function enter_sub_playlist_history_state() {
     //hide section
     toggleElements(sub_playlist_history_array, 'hide');
     document.getElementsByTagName('ytd-mini-guide-renderer')[0].classList.add(extension_prefix + 'dnone');
-    document.getElementById('guide-wrapper').innerHTML = ""
+    document.getElementById('guide-wrapper').innerHTML = '';
 
     //manip section
-    document.getElementById("page-manager").style.marginLeft = "0";
+    document.getElementById('page-manager').style.marginLeft = '0';
 }
 
 //undo changes to /feed/subscriptions /-history /-playlists
