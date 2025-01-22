@@ -55,6 +55,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             updateVariablesFromCookieAsync();
             addButtonsToDivContainer();
             break;
+        case 'reloadPage':
+            location.reload();
+            break;
     }
 });
 

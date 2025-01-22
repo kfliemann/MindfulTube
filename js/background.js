@@ -4,13 +4,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case 'getCookies':
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 if (tabs.length > 0) {
-                    chrome.tabs.sendMessage(
-                        tabs[0].id,
-                        message,
-                        (response) => {
-                            sendResponse(response); // Antwort senden
-                        }
-                    );
+                    chrome.tabs.sendMessage(tabs[0].id, message, (response) => {
+                        sendResponse(response);
+                    });
                 } else {
                     sendResponse({ error: 'Kein aktiver Tab gefunden' });
                 }
@@ -19,6 +15,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         //forwards the new cookie
         case 'setCookie':
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs.length > 0) {
+                    chrome.tabs.sendMessage(tabs[0].id, message);
+                }
+            });
+            break;
+
+        //reload youtube after changing a setting
+        case 'reloadPage':
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 if (tabs.length > 0) {
                     chrome.tabs.sendMessage(tabs[0].id, message);

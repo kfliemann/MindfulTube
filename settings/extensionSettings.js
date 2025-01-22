@@ -15,6 +15,11 @@ window.onload = async function () {
     let manifestData = chrome.runtime.getManifest();
     document.getElementById('ext-version').textContent = 'Version ' + manifestData.version;
 
+    let reload_button_obj = document.getElementById("reload_button");
+    reload_button_obj.addEventListener('click', (e) => {
+        reloadMainPage();
+    });
+
     try {
         let cookieArray = await getCookiesFromContent();
         cookieArray = cookieArray.data;
@@ -31,7 +36,6 @@ window.onload = async function () {
             }
         });
     } catch (error) {
-        //TODO: display error message in extension window (cookies not found or similar)
         document.getElementById('settings').style.display = 'none';
         document.getElementById('errorMessage').style.display = 'block';
     }
@@ -56,8 +60,20 @@ async function getCookiesFromContent() {
 
 //upon changing a setting, send a call to the content context to change the cookies
 function sendCookieToContent(target, checked) {
+    //display reload button on settings change
+    document.getElementById("reload_button").style.display = "flex"
+
     chrome.runtime.sendMessage({
         direction: 'setCookie',
         data: { key: target, value: checked },
     });
 }
+
+//send a reload request to main.js and close the extension settings window
+function reloadMainPage(){
+    chrome.runtime.sendMessage({
+        direction: 'reloadPage',
+    });
+    window.close()
+}
+
