@@ -1,3 +1,9 @@
 body{
     display: none;
 }
+
+#guide-button:has(#button):has(#guide-icon),
+ytd-guide-renderer,
+ytd-mini-guide-renderer{
+    display: none;
+}
