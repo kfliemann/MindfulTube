@@ -19,10 +19,10 @@ Firefox add-on that makes you focus on the important thing of Youtube: <b> watch
 
 <br>
 
-### If you want to make changes to the project, i recommend the following:
+### If you would like to modify the project, I suggest doing the following:
 1. Download the project
 2. Download the npm package [web-ext](https://www.npmjs.com/package/web-ext)
-3. Open the project in your code editor, open a terminal in the project folder and use the command <b>web-ext run</b> to start an instance of Firefox, which hotloads changes made to the extension 
+3. Open the project in your code editor, open a terminal in the project folder and use the command `web-ext run` to start an instance of Firefox, which hotloads changes made to the extension 
 
 This way, you don't have to manually reload the extension in the <b>about:debugging</b> window everytime you make a change in the code.
 
