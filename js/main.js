@@ -82,7 +82,7 @@ function initNavbarButtons() {
     subscriptionsObj.href = '/feed/subscriptions';
     subscriptionsObj.style.margin = '0px 10px';
     let subscriptionsDivObj = document.createElement('div');
-    subscriptionsDivObj.innerHTML = buttonFactory.subscriptionsButton.trim();
+    subscriptionsDivObj.appendChild(buttonFactory.createSubscriptionsButton());
     subscriptionsObj.prepend(subscriptionsDivObj);
 
     playlistObj = document.createElement('a');
@@ -90,7 +90,7 @@ function initNavbarButtons() {
     playlistObj.href = '/feed/playlists';
     playlistObj.style.margin = '0px 10px';
     let playlistDivObj = document.createElement('div');
-    playlistDivObj.innerHTML = buttonFactory.playlistButton.trim();
+    playlistDivObj.appendChild(buttonFactory.createPlaylistButton());
     playlistObj.prepend(playlistDivObj);
 
     historyObj = document.createElement('a');
@@ -98,7 +98,7 @@ function initNavbarButtons() {
     historyObj.href = '/feed/history';
     historyObj.style.margin = '0px 10px';
     let historyDivObj = document.createElement('div');
-    historyDivObj.innerHTML = buttonFactory.historyButton.trim();
+    historyDivObj.appendChild(buttonFactory.createHistoryButton());
     historyObj.prepend(historyDivObj);
 
     divContainer = document.createElement('div');
