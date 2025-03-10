@@ -25,3 +25,9 @@ Firefox add-on that makes you focus on the important thing of Youtube: <b> watch
 3. Open the project in your code editor, open a terminal in the project folder and use the command <b>web-ext run</b> to start an instance of Firefox, which hotloads changes made to the extension 
 
 This way, you don't have to manually reload the extension in the <b>about:debugging</b> window everytime you make a change in the code.
+
+<br>
+
+## License
+
+[GPL-3.0](https://github.com/Vulpelo/hide-youtube-shorts/blob/master/LICENCE.md)
