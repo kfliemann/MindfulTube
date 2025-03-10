@@ -1,12 +1,12 @@
 {
     "manifest_version": 2,
-    "name": "Tempname",
+    "name": "MindfulTube",
     "version": "1.0",
 
-    "description": "Adds a temp description",
+    "description": "Focus on watching videos, distraction-free!",
 
     "icons": {
-        "48": "icons/tempname-48.png"
+        "48": "icons/mindfultube.png"
     },
     "permissions": ["cookies", "tabs"],
     "background": {
@@ -22,9 +22,9 @@
     ],
     "browser_action": {
         "default_icon": {
-            "64": "icons/hideshort-64.png"
+            "64": "icons/mindfultube.png"
         },
-        "default_title": "Hide-Shorts",
+        "default_title": "Mindfultube",
         "default_popup": "./settings/extensionSettings.html"
     }
 }
