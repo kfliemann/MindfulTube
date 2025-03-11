@@ -1,6 +1,7 @@
 # MindfulTube
+[![Extension Link](https://img.shields.io/badge/Mozilla%20Extension-Link-blue?style=for-the-badge&logo=FirefoxBrowser)](https://addons.mozilla.org/en-US/firefox/addon/mindfultube/)
 
-Firefox add-on that makes you focus on the important thing of Youtube: <b> watch videos, distraction free </b>
+Firefox extension that makes you focus on the important thing of Youtube: <b> watch videos, distraction free </b>
 
 ## Features
 
@@ -10,6 +11,8 @@ Firefox add-on that makes you focus on the important thing of Youtube: <b> watch
 - All other aspects of YouTube remain untouched (e.g., user profiles, YouTube settings, etc.).
 
 ## Installation
+
+Install from [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mindfultube/) webpage.
 
 ### Add the Add-on temporarily:
 1. Download the project
